@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyJet Holidays Inspired Dispatch Hub</title>
+    <!-- Tailwind CSS for modern mobile layout optimization -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Mozilla PDF.js for secure local processing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+</head>
+<body class="bg-[#F3F4F6] font-sans min-h-screen text-slate-900 antialiased pb-12">
+
+    <!-- Compact Permanent Header (EasyJet Vibrant Orange Theme) -->
+    <div class="sticky top-0 bg-[#FF6600] text-white shadow-md px-3 py-2.5 z-20 rounded-b-2xl border-b-4 border-[#D55500]">
+        <div class="max-w-xl mx-auto space-y-2">
+            
+            <!-- Compact Single Row Setup For Document Uploading -->
+            <div class="bg-white/10 p-1.5 rounded-xl border border-white/10 flex items-center justify-between gap-2">
+                <span class="text-xs font-black tracking-wider uppercase pl-1 shrink-0">🍊 HOLIDAYS DISPATCH</span>
+                <input type="file" id="pdfFile" accept=".pdf" class="text-[11px] text-orange-100 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[11px] file:font-black file:bg-white file:text-[#FF6600] transition-all cursor-pointer flex-1" />
+            </div>
+
+            <!-- Global Lookup Input Field (Focus ring changed to deep corporate navy) -->
+            <div class="relative">
+                <input type="text" id="searchInput" disabled placeholder="Load manifest first..." class="w-full p-2.5 bg-white border border-slate-200 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-xs text-slate-900 font-semibold placeholder-slate-400 transition-all" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Feed Container -->
+    <div class="p-3 max-w-xl mx-auto">
+        <div id="statusMessage" class="text-center text-slate-500 my-12 text-xs bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            🍊 System Ready. Please upload your easyJet holidays manifest PDF.
+        </div>
+
+        <!-- Render Target Area -->
+        <div id="manifestsContainer" class="space-y-4"></div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        let extractedManifests = [];
+
+        // TARGET SYSTEM REDIRECT ROUTING CONFIGURATIONS
+        const PHONE_SYSTEM_STATIC_URL = "https://transfer-extranet.holidays.easyjet.com/reservations/booking-search";
+        const GPS_SYSTEM_STATIC_URL = "https://departures.summertimes.com.cy/";
+        const COMMENTS_SYSTEM_STATIC_URL = "https://s34summer.github.io/Easy-Jet-Call-Log/";
+
+        document.getElementById('searchInput').addEventListener('input', renderManifestCards, false);
+        document.getElementById('pdfFile').addEventListener('change', handlePDFUpload, false);
+
+        document.getElementById('searchInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                this.blur(); 
+                renderManifestCards(); 
+            }
+        });
+
+        // Secondary Accent Color for Text Highlights (Corporate Navy)
+        function highlightText(sourceText, queryText) {
+            if (!queryText) return sourceText;
+            const escapedQuery = queryText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
+            return sourceText.replace(regex, '<mark class="bg-[#1C2C5B] text-white font-semibold px-1 rounded shadow-xs inline-block">$1</mark>');
+        }
+
+        function copyAndGo(textToCopy, targetUrl) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                window.open(targetUrl, '_blank');
+            }).catch(() => {
+                const el = document.createElement('textarea');
+                el.value = textToCopy;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                window.open(targetUrl, '_blank');
+            });
+        }
+
+        async function handlePDFUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('statusMessage').innerHTML = "<span class='text-[#FF6600] font-black animate-pulse'>⏳ DECODING PDF MANIFEST...</span>";
+            
+            const fileReader = new FileReader();
+            fileReader.onload = async function() {
+                const typedarray = new Uint8Array(this.result);
+                try {
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    extractedManifests = [];
+                    let totalTextFound = 0;
+
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        
+                        const items = textContent.items.map(item => ({
+                            text: item.str.trim(),
+                            x: item.transform[4],
+                            y: item.transform[5]
+                        })).filter(item => item.text !== "");
+
+                        totalTextFound += items.length;
+
+                        if (items.length > 0) {
+                            parsePDFContent(items);
+                        }
+                    }
+
+                    if (totalTextFound === 0) {
+                        alert("Scanned text block layer missing inside PDF.");
+                        return;
+                    }
+
+                    finalizeParsing();
+
+                } catch (error) {
+                    console.error(error);
+                    alert("Error parsing PDF document.");
+                }
+            };
+            fileReader.readAsArrayBuffer(file);
+        }
+
+        function finalizeParsing() {
+            if (extractedManifests.length > 0) {
+                extractedManifests.sort((a, b) => {
+                    const timeA = (a.stops && a.stops[0] && a.stops[0].pickupTime) ? a.stops[0].pickupTime : "23:59";
+                    const timeB = (b.stops && b.stops[0] && b.stops[0].pickupTime) ? b.stops[0].pickupTime : "23:59";
+                    return timeA.localeCompare(timeB);
+                });
+
+                document.getElementById('searchInput').disabled = false;
+                document.getElementById('searchInput').placeholder = "🔍 Search Name, Ref, or Hotel...";
+                document.getElementById('statusMessage').classList.add('hidden');
+                renderManifestCards();
+            }
+        }
+
+        function parsePDFContent(items) {
+            let universalSearchString = items.map(i => i.text).join(" ").toLowerCase();
+
+            let lines = [];
+            let currentY = items[0].y;
+            let currentLine = [];
+
+            items.forEach(item => {
+                if (Math.abs(item.y - currentY) > 5) {
+                    lines.push(currentLine.sort((a, b) => a.x - b.x));
+                    currentLine = [];
+                    currentY = item.y;
+                }
+                currentLine.push(item);
+            });
+            lines.push(currentLine.sort((a, b) => a.x - b.x));
+
+            const textLines = lines.map(line => line.map(item => item.text).join(" "));
+
+            let voucherNo = "N/A";
+            let transferSupplier = "UNKNOWN COACHES";
+            let vehicle = "BUS RUN";
+            let flight = "N/A";
+            let time = "00:00";
+
+            textLines.forEach(line => {
+                if (line.includes("Voucher No.")) {
+                    const match = line.match(/Voucher No\.\s*(\d+)/);
+                    if (match) voucherNo = match[1];
+                }
+                if (line.includes("Transfer")) {
+                    transferSupplier = line.replace("Transfer", "").trim();
+                }
+                if (line.includes("Vehicle")) {
+                    vehicle = line.replace("Vehicle", "").trim();
+                }
+                if (line.includes("Flight")) {
+                    const fMatch = line.match(/Flight\s+([A-Z0-9]+)/i);
+                    if (fMatch) flight = fMatch[1];
+                    const tMatch = line.match(/Time\s+(\d{2}:\d{2})/i);
+                    if (tMatch) time = tMatch[1];
+                }
+            });
+
+            let stops = [];
+            let currentHotel = "";
+            let currentPickupTime = "";
+
+            lines.forEach(lineRow => {
+                const rowText = lineRow.map(i => i.text).join(" ");
+                
+                if (rowText.includes("RESORT") || rowText.includes("HOTEL") || rowText.includes("GARDENS") || rowText.includes("VILLAGE") || rowText.includes("SPA")) {
+                    const timeMatch = rowText.match(/(\d{2}:\d{2})/);
+                    currentHotel = rowText.replace(/\d{2}:\d{2}/, "").trim();
+                    currentPickupTime = timeMatch ? timeMatch[1] : "";
+                    return;
+                }
+
+                const refMatch = rowText.match(/(\d{7})/);
+                if (refMatch && currentHotel) {
+                    const refNum = refMatch[1];
+                    const words = lineRow.map(i => i.text);
+                    let leadName = words.find(w => isNaN(w) && w.length > 2 && w !== "EASYJET" && !w.includes("EZY")) || "Client";
+                    let paxCount = words.find(w => !isNaN(w) && parseInt(w) < 15 && w !== refNum) || "1";
+
+                    let existingStop = stops.find(s => s.hotelName === currentHotel);
+                    if (!existingStop) {
+                        existingStop = { hotelName: currentHotel, pickupTime: currentPickupTime, passengers: [] };
+                        stops.push(existingStop);
+                    }
+
+                    existingStop.passengers.push({
+                        leadName: leadName,
+                        refNum: refNum,
+                        paxCount: paxCount
+                    });
+                }
+            });
+
+            if (stops.length > 0) {
+                extractedManifests.push({
+                    voucherId: voucherNo,
+                    busSupplier: transferSupplier,
+                    vehicle: vehicle,
+                    flight: flight,
+                    routeTime: time,
+                    stops: stops,
+                    searchString: universalSearchString
+                });
+            }
+        }
+
+        function renderManifestCards() {
+            const query = document.getElementById('searchInput').value.trim();
+            const lowerQuery = query.toLowerCase();
+            const container = document.getElementById('manifestsContainer');
+            container.innerHTML = '';
+
+            let visibleCount = 0;
+
+            extractedManifests.forEach(manifest => {
+                let cardHasMatches = false;
+                let stopsHtml = '';
+
+                manifest.stops.forEach(stop => {
+                    let passengersHtml = '';
+                    
+                    // Filter passengers inside the current stop block
+                    stop.passengers.forEach(p => {
+                        const nameMatch = p.leadName.toLowerCase().includes(lowerQuery);
+                        const refMatch = p.refNum.toLowerCase().includes(lowerQuery);
+                        const hotelMatch = stop.hotelName.toLowerCase().includes(lowerQuery);
+
+                        // If user is searching, hide records that do not match the parameters completely
+                        if (lowerQuery && !nameMatch && !refMatch && !hotelMatch) return;
+
+                        cardHasMatches = true;
+                        const safeRef = String(p.refNum).replace(/'/g, "\\'");
+                        const highlightedName = highlightText(p.leadName, query);
+                        const highlightedRef = highlightText(p.refNum, query);
+
+                        passengersHtml += `
+                            <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 gap-4">
+                                <!-- Enhanced Sizes: Base Name Text sizing for rapid identification -->
+                                <div class="truncate flex-1">
+                                    <div class="text-base font-medium text-slate-900 tracking-wide">
+                                        ${highlightedName}
+                                    </div>
+                                    <div class="text-xs text-slate-500 font-mono mt-0.5 font-medium normal-case">
+                                        Ref: <span class="text-slate-600 bg-slate-100 px-1 rounded font-semibold">${highlightedRef}</span>
+                                        <span class="ml-2 px-1 rounded bg-orange-50 text-[#FF6600] font-bold">PAX: ${p.paxCount}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Compact, high-utility horizontal button configuration row -->
+                                <div class="flex gap-1 shrink-0">
+                                    <button onclick="copyAndGo('${safeRef}', '${COMMENTS_SYSTEM_STATIC_URL}')" aria-label="Notes" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">📝</button>
+                                    <button onclick="copyAndGo('${safeRef}', '${PHONE_SYSTEM_STATIC_URL}')" aria-label="Call" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">📞</button>
+                                    <button onclick="copyAndGo('${safeRef}', '${GPS_SYSTEM_STATIC_URL}')" aria-label="Track" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">🚌</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Hide empty hotel cards entirely if looking up a specific passenger record
+                    if (!passengersHtml) return;
+
+                    const highlightedHotel = highlightText(stop.hotelName, query);
+
+                    stopsHtml += `
+                        <div class="p-3 bg-white border-b border-slate-100 last:border-0">
+                            <!-- Retained font-black uppercase purely for the primary Hotel name -->
+                            <div class="flex justify-between items-start mb-2 gap-2">
+                                <span class="text-sm font-black text-[#FF6600] tracking-wide uppercase flex items-center gap-1.5 flex-1 leading-tight">
+                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
+                                    ${highlightedHotel}
+                                </span>
+                                <span class="text-xs font-black bg-slate-100 text-slate-800 border border-slate-200 px-2 py-0.5 rounded-md font-mono shrink-0">🕒 ${stop.pickupTime}</span>
+                            </div>
+                            <div class="pl-2.5 border-l-2 border-slate-200 space-y-1">
+                                ${passengersHtml}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (lowerQuery && !cardHasMatches) return;
+
+                visibleCount++;
+
+                const manifestBlock = document.createElement('div');
+                manifestBlock.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden";
+
+                const highlightedVoucher = highlightText(manifest.voucherId, query);
+                const highlightedSupplier = highlightText(manifest.busSupplier, query);
+                const highlightedFlight = highlightText(manifest.flight, query);
+
+                manifestBlock.innerHTML = `
+                    <div class="bg-gradient-to-r from-[#1C2C5B] to-[#0A163A] text-white p-3">
+                        <div class="flex justify-between items-start text-[9px] font-mono font-semibold tracking-wider text-slate-300 mb-1 normal-case">
+                            <span>Voucher: <span class="text-orange-400 font-bold">${highlightedVoucher}</span></span>
+                            <span class="text-slate-200 bg-white/10 px-1.5 py-0.5 rounded font-bold">Flight: ${highlightedFlight} (${manifest.routeTime})</span>
+                        </div>
+                        <div class="mt-0.5">
+                            <h2 class="text-xs font-semibold text-slate-200 normal-case leading-tight">${highlightedSupplier}</h2>
+                            <p class="text-[11px] text-slate-400 font-medium normal-case mt-0.5">${manifest.vehicle}</p>
+                        </div>
+                    </div>
+                    <div>
+                        ${stopsHtml}
+                    </div>
+                `;
+
+                container.appendChild(manifestBlock);
+            });
+
+            if (visibleCount === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-xs shadow-2xs">No matching dispatch logs located.</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
