@@ -64,7 +64,6 @@
                 <p id="modalActionType" class="text-[10px] uppercase font-black tracking-widest text-[#FF6600] mt-0.5"></p>
             </div>
             
-            <!-- Target Canvas Node where the local library builds the QR code pattern grid matrix -->
             <div id="qrcodeCanvas" class="flex justify-center p-3 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner max-w-[186px] mx-auto"></div>
             
             <p class="text-[10px] text-slate-400 font-medium leading-relaxed px-4">Scan using your phone's camera lens layout to launch contact actions directly from the desktop browser hub.</p>
@@ -120,11 +119,23 @@
             return "00" + digits; 
         }
 
-        // Secure Device Click Interception logic
+        // Educational Note: Copy reference to clipboard first, then handle URL navigation redirect smoothly
+        function handleSystemRedirect(refNum, systemUrlBase) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(refNum).then(() => {
+                    window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
+                }).catch(err => {
+                    console.error("Clipboard copy failed: ", err);
+                    window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
+                });
+            } else {
+                window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
+            }
+        }
+
         function handleContactClick(event, name, phone, mode) {
-            // Checks layout viewport size via Media Query. 1024px targets standard PC screens.
             if (window.matchMedia("(min-width: 1024px)").matches) {
-                event.preventDefault(); // Abort cellular call launching on a standard desktop environment
+                event.preventDefault(); 
                 
                 currentModalPhoneRaw = phone;
                 document.getElementById('modalPassengerName').innerText = name;
@@ -133,7 +144,6 @@
                 
                 document.getElementById('qrcodeCanvas').innerHTML = "";
                 
-                // Format the link payload strings securely for direct scans
                 let qrPayload = "";
                 if (mode === 'tel') {
                     qrPayload = `tel:${phone}`;
@@ -142,7 +152,6 @@
                     qrPayload = `https://wa.me/${cleanWhatsAppNum}`;
                 }
                 
-                // Initialize the clean, offline QR matrix generation script engine
                 new QRCode(document.getElementById("qrcodeCanvas"), {
                     text: qrPayload,
                     width: 160,
@@ -435,10 +444,10 @@
 
                         let activeWhatsAppStyle = p.clientPhone ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100' : 'bg-slate-100 border-slate-200 hover:bg-slate-200 opacity-50';
 
-                        // Sanitized escaping parameters passed down to event handling listeners
                         const safeJSName = p.leadName.replace(/'/g, "\\'");
                         const safeJSPhone = p.clientPhone ? p.clientPhone : (manifest.driverPhone ? manifest.driverPhone : "0035799000000");
 
+                        // FIX: Updated click events to use our new handleSystemRedirect function
                         passengersHtml += `
                             <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 gap-4">
                                 <div class="truncate flex-1">
@@ -451,15 +460,10 @@
                                     </div>
                                 </div>
                                 <div class="flex gap-1 shrink-0">
-                                    <button onclick="window.open('${COMMENTS_SYSTEM_STATIC_URL}?ref=${safeRef}', '_blank')" aria-label="Notes" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">📝</button>
-                                    
-                                    <!-- Cellular Trigger: Routes via handleContactClick to manage dynamic layouts -->
+                                    <button onclick="handleSystemRedirect('${safeRef}', '${COMMENTS_SYSTEM_STATIC_URL}')" aria-label="Notes" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">📝</button>
                                     <a href="${dialDestination}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'tel')" title="Cellular Dial" class="w-9 h-9 border rounded-lg flex items-center justify-center text-base transition-all shadow-2xs ${activePhoneStyle}">📞</a>
-                                    
-                                    <!-- WhatsApp Trigger: Routes via handleContactClick to manage dynamic layouts -->
                                     <a href="${whatsappLink}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'whatsapp')" title="WhatsApp Call" class="w-9 h-9 border rounded-lg flex items-center justify-center text-base transition-all shadow-2xs ${activeWhatsAppStyle}">💬</a>
-                                    
-                                    <button onclick="window.open('${GPS_SYSTEM_STATIC_URL}?ref=${safeRef}', '_blank')" aria-label="Track" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">🚌</button>
+                                    <button onclick="handleSystemRedirect('${safeRef}', '${GPS_SYSTEM_STATIC_URL}')" aria-label="Track" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">🚌</button>
                                 </div>
                             </div>
                         `;
@@ -494,7 +498,6 @@
                 let driverPhoneStyle = manifest.driverPhone ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-600' : 'bg-white/20 text-slate-200 border-white/20';
                 let driverButtonLabel = manifest.driverPhone ? `📞 CALL DRIVER (${manifest.driverPhone})` : `📞 NO DRIVER ASSIGNED`;
 
-                // Secure escaping hooks passed to the driver's contact button listener
                 const safeDriverName = "ASSIGNED SUPPLIER DRIVER";
                 const safeDriverPhone = manifest.driverPhone ? manifest.driverPhone : "0035799000000";
 
