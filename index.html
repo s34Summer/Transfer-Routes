@@ -6,6 +6,8 @@
     <title>EasyJet Holidays Inspired Dispatch Hub</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <!-- Secure, Local client-side QR Code rendering engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-[#F3F4F6] font-sans min-h-screen text-slate-900 antialiased pb-12">
 
@@ -52,11 +54,34 @@
         <div id="manifestsContainer" class="space-y-4"></div>
     </div>
 
+    <!-- PC Desktop Verification Modal Window Block -->
+    <div id="desktopModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4" onclick="closeDesktopModal(event)">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 border border-slate-100 transform scale-100 transition-all" onclick="event.stopPropagation()">
+            <div class="w-12 h-12 bg-orange-50 text-[#FF6600] rounded-full flex items-center justify-center mx-auto text-xl font-bold">📲</div>
+            <div>
+                <h3 id="modalPassengerName" class="text-base font-black text-[#1C2C5B] uppercase tracking-wide">PASSENGER CONTACT</h3>
+                <p id="modalPhoneNumber" class="text-lg font-mono font-bold text-slate-600 tracking-wider mt-1"></p>
+                <p id="modalActionType" class="text-[10px] uppercase font-black tracking-widest text-[#FF6600] mt-0.5"></p>
+            </div>
+            
+            <!-- Target Canvas Node where the local library builds the QR code pattern grid matrix -->
+            <div id="qrcodeCanvas" class="flex justify-center p-3 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner max-w-[186px] mx-auto"></div>
+            
+            <p class="text-[10px] text-slate-400 font-medium leading-relaxed px-4">Scan using your phone's camera lens layout to launch contact actions directly from the desktop browser hub.</p>
+            
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="copyModalNumber()" class="bg-slate-100 hover:bg-slate-200 text-[#1C2C5B] font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">📋 Copy Number</button>
+                <button onclick="document.getElementById('desktopModal').classList.add('hidden')" class="bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">✕ Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
         let extractedManifests = [];
         let activeTransferTab = 'arrival';
+        let currentModalPhoneRaw = "";
 
         const COMMENTS_SYSTEM_STATIC_URL = "https://s34summer.github.io/Easy-Jet-Call-Log/";
         const GPS_SYSTEM_STATIC_URL = "https://departures.summertimes.com.cy/";
@@ -93,6 +118,53 @@
             if (digits.length < 6 || /^0+$/.test(digits)) return ""; 
             if (digits.startsWith("00")) return digits;
             return "00" + digits; 
+        }
+
+        // Secure Device Click Interception logic
+        function handleContactClick(event, name, phone, mode) {
+            // Checks layout viewport size via Media Query. 1024px targets standard PC screens.
+            if (window.matchMedia("(min-width: 1024px)").matches) {
+                event.preventDefault(); // Abort cellular call launching on a standard desktop environment
+                
+                currentModalPhoneRaw = phone;
+                document.getElementById('modalPassengerName').innerText = name;
+                document.getElementById('modalPhoneNumber').innerText = phone;
+                document.getElementById('modalActionType').innerText = mode === 'tel' ? '📞 CELLULAR DIAL ROUTE' : '💬 WHATSAPP AUDIO CALL';
+                
+                document.getElementById('qrcodeCanvas').innerHTML = "";
+                
+                // Format the link payload strings securely for direct scans
+                let qrPayload = "";
+                if (mode === 'tel') {
+                    qrPayload = `tel:${phone}`;
+                } else {
+                    let cleanWhatsAppNum = phone.replace(/^00/, "+");
+                    qrPayload = `https://wa.me/${cleanWhatsAppNum}`;
+                }
+                
+                // Initialize the clean, offline QR matrix generation script engine
+                new QRCode(document.getElementById("qrcodeCanvas"), {
+                    text: qrPayload,
+                    width: 160,
+                    height: 160,
+                    colorDark : "#1C2C5B",
+                    colorLight : "#F8FAFC",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+                
+                document.getElementById('desktopModal').classList.remove('hidden');
+            }
+        }
+
+        function closeDesktopModal(event) {
+            document.getElementById('desktopModal').classList.add('hidden');
+        }
+
+        function copyModalNumber() {
+            if (currentModalPhoneRaw) {
+                navigator.clipboard.writeText(currentModalPhoneRaw);
+                alert("Phone number copied to clipboard: " + currentModalPhoneRaw);
+            }
         }
 
         async function handlePDFUpload(e, transferType) {
@@ -340,15 +412,19 @@
                     let passengersHtml = '';
                     
                     stop.passengers.forEach(p => {
+                        const matchesName = p.leadName.toLowerCase().includes(lowerQuery);
+                        const matchesRef = p.refNum.toLowerCase().includes(lowerQuery);
+                        const matchesHotel = stop.hotelName.toLowerCase().includes(lowerQuery);
+                        
+                        if (lowerQuery && !matchesName && !matchesRef && !matchesHotel) return;
+
                         const safeRef = String(p.refNum).replace(/'/g, "\\'");
                         const highlightedName = highlightText(p.leadName, query);
                         const highlightedRef = highlightText(p.refNum, query);
 
-                        // Direct Dial Setup
                         let dialDestination = p.clientPhone ? `tel:${p.clientPhone}` : (manifest.driverPhone ? `tel:${manifest.driverPhone}` : `tel:0035799000000`);
                         let activePhoneStyle = p.clientPhone ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 border-slate-200 hover:bg-slate-200';
 
-                        // WhatsApp Link Optimization: Strip '00' and replace with standard '+' prefix
                         let whatsappLink = "";
                         if (p.clientPhone) {
                             let cleanNumber = p.clientPhone.replace(/^00/, "+");
@@ -358,6 +434,10 @@
                         }
 
                         let activeWhatsAppStyle = p.clientPhone ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100' : 'bg-slate-100 border-slate-200 hover:bg-slate-200 opacity-50';
+
+                        // Sanitized escaping parameters passed down to event handling listeners
+                        const safeJSName = p.leadName.replace(/'/g, "\\'");
+                        const safeJSPhone = p.clientPhone ? p.clientPhone : (manifest.driverPhone ? manifest.driverPhone : "0035799000000");
 
                         passengersHtml += `
                             <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 gap-4">
@@ -373,17 +453,19 @@
                                 <div class="flex gap-1 shrink-0">
                                     <button onclick="window.open('${COMMENTS_SYSTEM_STATIC_URL}?ref=${safeRef}', '_blank')" aria-label="Notes" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">📝</button>
                                     
-                                    <!-- Instant Cellular Call -->
-                                    <a href="${dialDestination}" title="Cellular Dial" class="w-9 h-9 border rounded-lg flex items-center justify-center text-base transition-all shadow-2xs ${activePhoneStyle}">📞</a>
+                                    <!-- Cellular Trigger: Routes via handleContactClick to manage dynamic layouts -->
+                                    <a href="${dialDestination}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'tel')" title="Cellular Dial" class="w-9 h-9 border rounded-lg flex items-center justify-center text-base transition-all shadow-2xs ${activePhoneStyle}">📞</a>
                                     
-                                    <!-- Instant WhatsApp Call/Chat Redirect -->
-                                    <a href="${whatsappLink}" title="WhatsApp Call" class="w-9 h-9 border rounded-lg flex items-center justify-center text-base transition-all shadow-2xs ${activeWhatsAppStyle}">💬</a>
+                                    <!-- WhatsApp Trigger: Routes via handleContactClick to manage dynamic layouts -->
+                                    <a href="${whatsappLink}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'whatsapp')" title="WhatsApp Call" class="w-9 h-9 border rounded-lg flex items-center justify-center text-base transition-all shadow-2xs ${activeWhatsAppStyle}">💬</a>
                                     
                                     <button onclick="window.open('${GPS_SYSTEM_STATIC_URL}?ref=${safeRef}', '_blank')" aria-label="Track" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">🚌</button>
                                 </div>
                             </div>
                         `;
                     });
+
+                    if (!passengersHtml) return;
 
                     const highlightedHotel = highlightText(stop.hotelName, query);
                     const timingLabel = manifest.type === 'arrival' ? 'Flight Arr' : 'Pick Up';
@@ -408,10 +490,13 @@
                 const highlightedFlight = highlightText(manifest.flight, query);
                 const displayVoucher = manifest.voucherId !== "N/A" ? manifest.voucherId : "Unified Run";
 
-                // Direct Raw Driver Call Routing
                 let driverDialDestination = manifest.driverPhone ? `tel:${manifest.driverPhone}` : `tel:0035799000000`;
                 let driverPhoneStyle = manifest.driverPhone ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-600' : 'bg-white/20 text-slate-200 border-white/20';
                 let driverButtonLabel = manifest.driverPhone ? `📞 CALL DRIVER (${manifest.driverPhone})` : `📞 NO DRIVER ASSIGNED`;
+
+                // Secure escaping hooks passed to the driver's contact button listener
+                const safeDriverName = "ASSIGNED SUPPLIER DRIVER";
+                const safeDriverPhone = manifest.driverPhone ? manifest.driverPhone : "0035799000000";
 
                 manifestBlock.innerHTML = `
                     <div class="bg-gradient-to-r from-[#1C2C5B] to-[#0A163A] text-white p-3 space-y-2">
@@ -430,7 +515,7 @@
                             </div>
                         </div>
                         <div class="pt-1">
-                            <a href="${driverDialDestination}" class="w-full text-center block text-[10px] font-black tracking-widest py-1.5 px-3 border rounded-xl transition-all ${driverPhoneStyle}">
+                            <a href="${driverDialDestination}" onclick="handleContactClick(event, '${safeDriverName}', '${safeDriverPhone}', 'tel')" class="w-full text-center block text-[10px] font-black tracking-widest py-1.5 px-3 border rounded-xl transition-all ${driverPhoneStyle}">
                                 ${driverButtonLabel}
                             </a>
                         </div>
@@ -444,7 +529,7 @@
             });
 
             if (visibleCount === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-xs shadow-2xs">No active transfers loaded in this tab workspace view.</div>`;
+                container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-xs shadow-2xs">No active transfers match your search query filter.</div>`;
             }
         }
     </script>
