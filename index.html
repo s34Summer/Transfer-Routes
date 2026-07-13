@@ -9,59 +9,72 @@
     <!-- Secure, Local client-side QR Code rendering engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
-<body class="bg-[#F3F4F6] font-sans min-h-screen text-slate-900 antialiased pb-12">
+<body class="bg-[#F8FAFC] font-sans min-h-screen text-slate-900 antialiased pb-12">
 
-    <!-- Compact Permanent Header (EasyJet Vibrant Orange Theme) -->
-    <div class="sticky top-0 bg-[#FF6600] text-white shadow-md px-3 py-2.5 z-20 rounded-b-2xl border-b-4 border-[#D55500]">
-        <div class="max-w-xl mx-auto space-y-2">
+    <!-- REFACTORED HEADER: Softer light orange gradient structure with modern iconography indicators -->
+    <div class="sticky top-0 bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white shadow-md px-3 py-3 z-20 rounded-b-3xl border-b-4 border-[#E07722]">
+        <div class="max-w-xl lg:max-w-7xl mx-auto space-y-2.5">
             
-            <!-- Dual File Upload Input Row Configuration -->
-            <div class="grid grid-cols-2 gap-2 bg-white/10 p-1.5 rounded-xl border border-white/10 text-[10px]">
-                <div class="flex flex-col gap-1 border-r border-white/10 pr-2">
-                    <span class="font-black tracking-wider uppercase text-orange-200">🛬 ARRIVALS PDF</span>
-                    <input type="file" id="pdfArrivals" accept=".pdf" class="text-blue-100 file:py-0.5 file:px-1.5 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-white file:text-[#FF6600] cursor-pointer" />
+            <!-- Dual File Upload Input Row Configuration with Embedded Action Icons -->
+            <div class="grid grid-cols-2 gap-2 bg-white/15 p-2 rounded-2xl border border-white/20 text-[10px] lg:max-w-md lg:mx-auto shadow-inner">
+                <div class="flex flex-col gap-1 border-r border-white/25 pr-2">
+                    <span class="font-black tracking-wider uppercase text-orange-900/80 flex items-center gap-1">
+                        <span>📥</span> 🛬 ARRIVALS PDF
+                    </span>
+                    <input type="file" id="pdfArrivals" accept=".pdf" class="text-orange-950 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all" />
                 </div>
                 <div class="flex flex-col gap-1 pl-1">
-                    <span class="font-black tracking-wider uppercase text-orange-200">🛫 DEPARTURES PDF</span>
-                    <input type="file" id="pdfDepartures" accept=".pdf" class="text-blue-100 file:py-0.5 file:px-1.5 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-white file:text-[#FF6600] cursor-pointer" />
+                    <span class="font-black tracking-wider uppercase text-orange-900/80 flex items-center gap-1">
+                        <span>📤</span> 🛫 DEPARTURES PDF
+                    </span>
+                    <input type="file" id="pdfDepartures" accept=".pdf" class="text-orange-950 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all" />
                 </div>
             </div>
 
-            <!-- Global Lookup Input Field -->
-            <div class="relative">
-                <input type="text" id="searchInput" disabled placeholder="Load a manifest file above..." class="w-full p-2.5 bg-white border border-slate-200 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-xs text-slate-900 font-semibold placeholder-slate-400 transition-all" />
+            <!-- Global Lookup Input Field with Search Icon Indicator -->
+            <div class="relative lg:max-w-md lg:mx-auto">
+                <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 text-xs">🔍</span>
+                <input type="text" id="searchInput" disabled placeholder="Load a manifest file above..." class="w-full pl-8 pr-3 py-2.5 bg-white border border-orange-200/40 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-xs text-slate-900 font-semibold placeholder-slate-400 transition-all" />
             </div>
 
             <!-- Workspace Isolation Segment Tabs -->
-            <div class="grid grid-cols-2 gap-1 bg-[#1C2C5B] p-1 rounded-xl text-center text-xs font-bold">
-                <button onclick="setActiveTab('arrival')" id="tabArrivalBtn" class="bg-[#FF6600] text-white py-1.5 rounded-lg transition-all cursor-pointer">
-                    🛬 Arrivals Only
+            <div class="grid grid-cols-2 gap-1 bg-[#1C2C5B] p-1 rounded-xl text-center text-xs font-bold lg:max-w-md lg:mx-auto shadow-md">
+                <button onclick="setActiveTab('arrival')" id="tabArrivalBtn" class="bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-1.5 rounded-lg transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1">
+                    <span>🛬</span> Arrivals Only
                 </button>
-                <button onclick="setActiveTab('departure')" id="tabDepartureBtn" class="text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer">
-                    🛫 Departures Only
+                <button onclick="setActiveTab('departure')" id="tabDepartureBtn" class="text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 hover:text-white">
+                    <span>🛫</span> Departures Only
                 </button>
+            </div>
+
+            <!-- Prefix Sub-Filter Selection Bar -->
+            <div class="flex flex-wrap gap-1 justify-center pt-0.5 lg:max-w-xl lg:mx-auto text-[10px] font-bold">
+                <button onclick="setActivePrefix('ALL')" id="prefixAllBtn" class="bg-white text-[#1C2C5B] px-3 py-1 rounded-full shadow-xs transition-all cursor-pointer">📦 All Runs</button>
+                <button onclick="setActivePrefix('TAXI')" id="prefixTaxiBtn" class="bg-[#1C2C5B]/30 text-white px-3 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚕 Taxis (ST/AP)</button>
+                <button onclick="setActivePrefix('SHUTTLE')" id="prefixShuttleBtn" class="bg-[#1C2C5B]/30 text-white px-3 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚐 Shuttles (XC)</button>
+                <button onclick="setActivePrefix('ADAPTED')" id="prefixAdaptedBtn" class="bg-[#1C2C5B]/30 text-white px-3 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">♿ Adapted (NC)</button>
             </div>
         </div>
     </div>
 
-    <!-- Active Feed Container -->
-    <div class="p-3 max-w-xl mx-auto">
-        <div id="statusMessage" class="text-center text-slate-500 my-12 text-xs bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+    <!-- Active Feed Grid Container (Option 2 Layout Structure) -->
+    <div class="p-3 max-w-xl lg:max-w-7xl mx-auto mt-2">
+        <div id="statusMessage" class="text-center text-slate-500 my-12 text-xs bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto">
             🍊 System Ready. Please load your active manifest schedules into the panels above.
         </div>
 
-        <!-- Render Target Area -->
-        <div id="manifestsContainer" class="space-y-4"></div>
+        <!-- RENDER TARGET -->
+        <div id="manifestsContainer" class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 xl:grid-cols-3"></div>
     </div>
 
     <!-- PC Desktop Verification Modal Window Block -->
     <div id="desktopModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4" onclick="closeDesktopModal(event)">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 border border-slate-100 transform scale-100 transition-all" onclick="event.stopPropagation()">
-            <div class="w-12 h-12 bg-orange-50 text-[#FF6600] rounded-full flex items-center justify-center mx-auto text-xl font-bold">📲</div>
+            <div class="w-12 h-12 bg-orange-50 text-[#FF8833] rounded-full flex items-center justify-center mx-auto text-xl font-bold">📲</div>
             <div>
                 <h3 id="modalPassengerName" class="text-base font-black text-[#1C2C5B] uppercase tracking-wide">PASSENGER CONTACT</h3>
                 <p id="modalPhoneNumber" class="text-lg font-mono font-bold text-slate-600 tracking-wider mt-1"></p>
-                <p id="modalActionType" class="text-[10px] uppercase font-black tracking-widest text-[#FF6600] mt-0.5"></p>
+                <p id="modalActionType" class="text-[10px] uppercase font-black tracking-widest text-[#FF8833] mt-0.5"></p>
             </div>
             
             <div id="qrcodeCanvas" class="flex justify-center p-3 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner max-w-[186px] mx-auto"></div>
@@ -80,6 +93,7 @@
 
         let extractedManifests = [];
         let activeTransferTab = 'arrival';
+        let activePrefixTab = 'ALL'; 
         let currentModalPhoneRaw = "";
 
         const COMMENTS_SYSTEM_STATIC_URL = "https://s34summer.github.io/Easy-Jet-Call-Log/";
@@ -89,6 +103,7 @@
         document.getElementById('pdfArrivals').addEventListener('change', (e) => handlePDFUpload(e, 'arrival'), false);
         document.getElementById('pdfDepartures').addEventListener('change', (e) => handlePDFUpload(e, 'departure'), false);
 
+        // UI Adjustments for dynamic background rendering properties
         function highlightText(sourceText, queryText) {
             if (!queryText) return sourceText;
             const escapedQuery = queryText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -102,12 +117,31 @@
             const depBtn = document.getElementById('tabDepartureBtn');
 
             if (tabType === 'arrival') {
-                arrBtn.className = "bg-[#FF6600] text-white py-1.5 rounded-lg transition-all cursor-pointer font-bold";
-                depBtn.className = "text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer font-bold";
+                arrBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-1.5 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1";
+                depBtn.className = "text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 hover:text-white";
             } else {
-                depBtn.className = "bg-[#FF6600] text-white py-1.5 rounded-lg transition-all cursor-pointer font-bold";
-                arrBtn.className = "text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer font-bold";
+                depBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-1.5 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1";
+                arrBtn.className = "text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 hover:text-white";
             }
+            renderManifestCards();
+        }
+
+        function setActivePrefix(prefixType) {
+            activePrefixTab = prefixType;
+            const btns = {
+                ALL: document.getElementById('prefixAllBtn'),
+                TAXI: document.getElementById('prefixTaxiBtn'),
+                SHUTTLE: document.getElementById('prefixShuttleBtn'),
+                ADAPTED: document.getElementById('prefixAdaptedBtn')
+            };
+
+            Object.keys(btns).forEach(key => {
+                if (key === prefixType) {
+                    btns[key].className = "bg-white text-[#1C2C5B] px-3 py-1 rounded-full shadow-xs transition-all cursor-pointer";
+                } else {
+                    btns[key].className = "bg-[#1C2C5B]/30 text-white px-3 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50";
+                }
+            });
             renderManifestCards();
         }
 
@@ -119,7 +153,6 @@
             return "00" + digits; 
         }
 
-        // Educational Note: Copy reference to clipboard first, then handle URL navigation redirect smoothly
         function handleSystemRedirect(refNum, systemUrlBase) {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(refNum).then(() => {
@@ -180,7 +213,7 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            document.getElementById('statusMessage').innerHTML = `<span class='text-[#FF6600] font-black animate-pulse'>⏳ PROCESSING ${transferType.toUpperCase()} MANIFEST...</span>`;
+            document.getElementById('statusMessage').innerHTML = `<span class='text-[#FF8833] font-black animate-pulse'>⏳ PROCESSING ${transferType.toUpperCase()} MANIFEST...</span>`;
             
             const fileReader = new FileReader();
             fileReader.onload = async function() {
@@ -231,22 +264,6 @@
             }
         }
 
-        function cleanStringForName(str) {
-            if (!str) return "";
-            return str.replace(/EASYJET/gi, "")
-                      .replace(/HOLIDAYS/gi, "")
-                      .replace(/HOLI/gi, "")
-                      .replace(/PAX[:\s]*\d+/gi, "")
-                      .replace(/VOUCHER/gi, "")
-                      .replace(/BOOKING/gi, "")
-                      .replace(/TRANSFER/gi, "")
-                      .replace(/VEHICLE/gi, "")
-                      .replace(/FLIGHT/gi, "")
-                      .replace(/EZY\d*/gi, "")
-                      .replace(/[\:\#\*\d]/g, "")
-                      .trim();
-        }
-
         function parseTwoRowPairedLayout(items, transferType) {
             let lineMap = {};
             items.forEach(item => {
@@ -273,6 +290,9 @@
             let flightCode = "N/A";
             let masterFlightTime = "00:00";
             let driverPhone = "";
+            let busSupplierName = "easyJet Holidays";
+            let vehicleType = "Coaches Transfer";
+            let prefixCategory = "COACH"; 
 
             processedLines.forEach(line => {
                 if (line.text.includes("Voucher No.")) {
@@ -289,6 +309,33 @@
                     const dMatch = line.text.match(/Driver[:\s]+(\d+)/i);
                     if (dMatch) driverPhone = dMatch[1].trim();
                 }
+                
+                if (line.text.includes("Transport")) {
+                    const tMatch = line.text.match(/Transport\s+([A-Z0-9]+)/i);
+                    if (tMatch) {
+                        const transportCode = tMatch[1].toUpperCase();
+                        if (transportCode.startsWith("ST")) {
+                            busSupplierName = "Stavrakis Taxi";
+                            vehicleType = "Taxi Transfer";
+                            driverPhone = "24102297"; 
+                            prefixCategory = "TAXI";
+                        } else if (transportCode.startsWith("AP")) {
+                            busSupplierName = "Aphrodite Taxi";
+                            vehicleType = "Taxi Transfer";
+                            driverPhone = "26934555"; 
+                            prefixCategory = "TAXI";
+                        } else if (transportCode.startsWith("XC")) {
+                            busSupplierName = "easyJet Holidays";
+                            vehicleType = "Shuttle Transfer";
+                            prefixCategory = "SHUTTLE";
+                        } else if (transportCode.startsWith("NC")) {
+                            busSupplierName = "easyJet Holidays";
+                            vehicleType = "Adapted Transfer";
+                            driverPhone = "22487308";
+                            prefixCategory = "ADAPTED";
+                        }
+                    }
+                }
             });
 
             for (let i = 0; i < processedLines.length; i++) {
@@ -297,7 +344,6 @@
 
                 if (refMatch) {
                     const refNum = refMatch[1];
-                    
                     let hotelName = "UNKNOWN PROPERTY";
                     let pickupTime = "00:00";
 
@@ -364,8 +410,9 @@
                             groupKey: manifestGroupKey,
                             type: transferType,
                             voucherId: globalVoucherNo,
-                            busSupplier: "easyJet Holidays",
-                            vehicle: "Coaches Transfer",
+                            busSupplier: busSupplierName,
+                            vehicle: vehicleType,
+                            prefixCategory: prefixCategory, 
                             flight: flightCode,
                             routeTime: masterFlightTime,
                             sortTime: pickupTime,
@@ -409,12 +456,13 @@
 
             extractedManifests.forEach(manifest => {
                 if (manifest.type !== activeTransferTab) return;
+                if (activePrefixTab !== 'ALL' && manifest.prefixCategory !== activePrefixTab) return;
                 if (lowerQuery && !manifest.searchString.includes(lowerQuery) && !manifest.flight.toLowerCase().includes(lowerQuery) && !manifest.voucherId.toLowerCase().includes(lowerQuery)) return;
 
                 visibleCount++;
 
                 const manifestBlock = document.createElement('div');
-                manifestBlock.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden";
+                manifestBlock.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-fit";
 
                 let stopsHtml = '';
                 manifest.stops.forEach(stop => {
@@ -447,7 +495,6 @@
                         const safeJSName = p.leadName.replace(/'/g, "\\'");
                         const safeJSPhone = p.clientPhone ? p.clientPhone : (manifest.driverPhone ? manifest.driverPhone : "0035799000000");
 
-                        // FIX: Updated click events to use our new handleSystemRedirect function
                         passengersHtml += `
                             <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 gap-4">
                                 <div class="truncate flex-1">
@@ -456,7 +503,7 @@
                                     </div>
                                     <div class="text-xs text-slate-500 font-mono mt-0.5 font-medium normal-case">
                                         Ref: <span class="text-slate-600 bg-slate-100 px-1 rounded font-semibold">${highlightedRef}</span>
-                                        <span class="ml-2 px-1 rounded bg-orange-50 text-[#FF6600] font-bold">PAX: ${p.paxCount}</span>
+                                        <span class="ml-2 px-1 rounded bg-orange-50 text-[#FF8833] font-bold">PAX: ${p.paxCount}</span>
                                     </div>
                                 </div>
                                 <div class="flex gap-1 shrink-0">
@@ -477,7 +524,7 @@
                     stopsHtml += `
                         <div class="p-3 bg-white border-b border-slate-100 last:border-0">
                             <div class="flex justify-between items-start mb-2 gap-2">
-                                <span class="text-sm font-black text-[#FF6600] tracking-wide uppercase flex items-center gap-1.5 flex-1 leading-tight">
+                                <span class="text-sm font-black text-[#FF8833] tracking-wide uppercase flex items-center gap-1.5 flex-1 leading-tight">
                                     <span class="inline-block w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
                                     ${highlightedHotel}
                                 </span>
@@ -532,7 +579,7 @@
             });
 
             if (visibleCount === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-xs shadow-2xs">No active transfers match your search query filter.</div>`;
+                container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-xs shadow-2xs lg:col-span-2 xl:col-span-3">No active transfers match your filtering settings.</div>`;
             }
         }
     </script>
