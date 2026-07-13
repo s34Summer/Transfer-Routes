@@ -11,55 +11,55 @@
 </head>
 <body class="bg-[#F8FAFC] font-sans min-h-screen text-slate-900 antialiased pb-12">
 
-    <!-- REFACTORED HEADER: Softer light orange gradient structure with modern iconography indicators -->
-    <div class="sticky top-0 bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white shadow-md px-3 py-3 z-20 rounded-b-3xl border-b-4 border-[#E07722]">
-        <div class="max-w-xl lg:max-w-7xl mx-auto space-y-2.5">
+    <!-- HEADER: Enhanced font metrics and crisp iconography sizing adjustments -->
+    <div class="sticky top-0 bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white shadow-md px-3 py-3.5 z-20 rounded-b-3xl border-b-4 border-[#E07722]">
+        <div class="max-w-xl lg:max-w-7xl mx-auto space-y-3">
             
-            <!-- Dual File Upload Input Row Configuration with Embedded Action Icons -->
-            <div class="grid grid-cols-2 gap-2 bg-white/15 p-2 rounded-2xl border border-white/20 text-[10px] lg:max-w-md lg:mx-auto shadow-inner">
+            <!-- Dual File Upload Input Row Configuration -->
+            <div class="grid grid-cols-2 gap-3 bg-white/15 p-2 rounded-2xl border border-white/20 text-xs lg:max-w-md lg:mx-auto shadow-inner">
                 <div class="flex flex-col gap-1 border-r border-white/25 pr-2">
-                    <span class="font-black tracking-wider uppercase text-orange-900/80 flex items-center gap-1">
-                        <span>📥</span> 🛬 ARRIVALS PDF
+                    <span class="font-black tracking-wider uppercase text-orange-950 flex items-center gap-1">
+                        <span>🛫</span> ARRIVALS PDF
                     </span>
-                    <input type="file" id="pdfArrivals" accept=".pdf" class="text-orange-950 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all" />
+                    <input type="file" id="pdfArrivals" accept=".pdf" class="text-orange-950 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all w-full" />
                 </div>
                 <div class="flex flex-col gap-1 pl-1">
-                    <span class="font-black tracking-wider uppercase text-orange-900/80 flex items-center gap-1">
-                        <span>📤</span> 🛫 DEPARTURES PDF
+                    <span class="font-black tracking-wider uppercase text-orange-950 flex items-center gap-1">
+                        <span>🛬</span> DEPARTURES PDF
                     </span>
-                    <input type="file" id="pdfDepartures" accept=".pdf" class="text-orange-950 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all" />
+                    <input type="file" id="pdfDepartures" accept=".pdf" class="text-orange-950 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all w-full" />
                 </div>
             </div>
 
-            <!-- Global Lookup Input Field with Search Icon Indicator -->
+            <!-- Global Lookup Input Field -->
             <div class="relative lg:max-w-md lg:mx-auto">
-                <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 text-xs">🔍</span>
-                <input type="text" id="searchInput" disabled placeholder="Load a manifest file above..." class="w-full pl-8 pr-3 py-2.5 bg-white border border-orange-200/40 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-xs text-slate-900 font-semibold placeholder-slate-400 transition-all" />
+                <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">🔍</span>
+                <input type="text" id="searchInput" disabled placeholder="Search Name, Ref, or Hotel..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-orange-200/40 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-sm text-slate-900 font-bold placeholder-slate-400 transition-all" />
             </div>
 
             <!-- Workspace Isolation Segment Tabs -->
-            <div class="grid grid-cols-2 gap-1 bg-[#1C2C5B] p-1 rounded-xl text-center text-xs font-bold lg:max-w-md lg:mx-auto shadow-md">
-                <button onclick="setActiveTab('arrival')" id="tabArrivalBtn" class="bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-1.5 rounded-lg transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1">
+            <div class="grid grid-cols-2 gap-1 bg-[#1C2C5B] p-1 rounded-xl text-center text-sm font-bold lg:max-w-md lg:mx-auto shadow-md">
+                <button onclick="setActiveTab('arrival')" id="tabArrivalBtn" class="bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-2 rounded-lg transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5">
                     <span>🛬</span> Arrivals Only
                 </button>
-                <button onclick="setActiveTab('departure')" id="tabDepartureBtn" class="text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 hover:text-white">
+                <button onclick="setActiveTab('departure')" id="tabDepartureBtn" class="text-slate-300 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white">
                     <span>🛫</span> Departures Only
                 </button>
             </div>
 
             <!-- Prefix Sub-Filter Selection Bar -->
-            <div class="flex flex-wrap gap-1 justify-center pt-0.5 lg:max-w-xl lg:mx-auto text-[10px] font-bold">
-                <button onclick="setActivePrefix('ALL')" id="prefixAllBtn" class="bg-white text-[#1C2C5B] px-3 py-1 rounded-full shadow-xs transition-all cursor-pointer">📦 All Runs</button>
-                <button onclick="setActivePrefix('TAXI')" id="prefixTaxiBtn" class="bg-[#1C2C5B]/30 text-white px-3 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚕 Taxis (ST/AP)</button>
-                <button onclick="setActivePrefix('SHUTTLE')" id="prefixShuttleBtn" class="bg-[#1C2C5B]/30 text-white px-3 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚐 Shuttles (XC)</button>
-                <button onclick="setActivePrefix('ADAPTED')" id="prefixAdaptedBtn" class="bg-[#1C2C5B]/30 text-white px-3 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">♿ Adapted (NC)</button>
+            <div class="flex flex-wrap gap-1.5 justify-center pt-0.5 lg:max-w-xl lg:mx-auto text-xs font-bold">
+                <button onclick="setActivePrefix('ALL')" id="prefixAllBtn" class="bg-white text-[#1C2C5B] px-3.5 py-1.5 rounded-full shadow-xs transition-all cursor-pointer">📦 All Runs</button>
+                <button onclick="setActivePrefix('TAXI')" id="prefixTaxiBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚕 Taxis (ST/AP)</button>
+                <button onclick="setActivePrefix('SHUTTLE')" id="prefixShuttleBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">专 Shuttles (XC)</button>
+                <button onclick="setActivePrefix('ADAPTED')" id="prefixAdaptedBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">♿ Adapted (NC)</button>
             </div>
         </div>
     </div>
 
-    <!-- Active Feed Grid Container (Option 2 Layout Structure) -->
+    <!-- Active Feed Grid Container -->
     <div class="p-3 max-w-xl lg:max-w-7xl mx-auto mt-2">
-        <div id="statusMessage" class="text-center text-slate-500 my-12 text-xs bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto">
+        <div id="statusMessage" class="text-center text-slate-500 my-12 text-sm bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto">
             🍊 System Ready. Please load your active manifest schedules into the panels above.
         </div>
 
@@ -74,12 +74,12 @@
             <div>
                 <h3 id="modalPassengerName" class="text-base font-black text-[#1C2C5B] uppercase tracking-wide">PASSENGER CONTACT</h3>
                 <p id="modalPhoneNumber" class="text-lg font-mono font-bold text-slate-600 tracking-wider mt-1"></p>
-                <p id="modalActionType" class="text-[10px] uppercase font-black tracking-widest text-[#FF8833] mt-0.5"></p>
+                <p id="modalActionType" class="text-xs uppercase font-black tracking-widest text-[#FF8833] mt-0.5"></p>
             </div>
             
             <div id="qrcodeCanvas" class="flex justify-center p-3 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner max-w-[186px] mx-auto"></div>
             
-            <p class="text-[10px] text-slate-400 font-medium leading-relaxed px-4">Scan using your phone's camera lens layout to launch contact actions directly from the desktop browser hub.</p>
+            <p class="text-xs text-slate-400 font-medium leading-relaxed px-4">Scan using your phone's camera lens layout to launch contact actions directly from the desktop browser hub.</p>
             
             <div class="grid grid-cols-2 gap-2 pt-1">
                 <button onclick="copyModalNumber()" class="bg-slate-100 hover:bg-slate-200 text-[#1C2C5B] font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">📋 Copy Number</button>
@@ -103,7 +103,6 @@
         document.getElementById('pdfArrivals').addEventListener('change', (e) => handlePDFUpload(e, 'arrival'), false);
         document.getElementById('pdfDepartures').addEventListener('change', (e) => handlePDFUpload(e, 'departure'), false);
 
-        // UI Adjustments for dynamic background rendering properties
         function highlightText(sourceText, queryText) {
             if (!queryText) return sourceText;
             const escapedQuery = queryText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -117,11 +116,11 @@
             const depBtn = document.getElementById('tabDepartureBtn');
 
             if (tabType === 'arrival') {
-                arrBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-1.5 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1";
-                depBtn.className = "text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 hover:text-white";
+                arrBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-2 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5";
+                depBtn.className = "text-slate-300 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white";
             } else {
-                depBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-1.5 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1";
-                arrBtn.className = "text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 hover:text-white";
+                depBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-2 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5";
+                arrBtn.className = "text-slate-300 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white";
             }
             renderManifestCards();
         }
@@ -137,9 +136,9 @@
 
             Object.keys(btns).forEach(key => {
                 if (key === prefixType) {
-                    btns[key].className = "bg-white text-[#1C2C5B] px-3 py-1 rounded-full shadow-xs transition-all cursor-pointer";
+                    btns[key].className = "bg-white text-[#1C2C5B] px-3.5 py-1.5 rounded-full shadow-xs transition-all cursor-pointer";
                 } else {
-                    btns[key].className = "bg-[#1C2C5B]/30 text-white px-3 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50";
+                    btns[key].className = "bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50";
                 }
             });
             renderManifestCards();
@@ -258,7 +257,7 @@
                 extractedManifests.sort((a, b) => (a.sortTime || "23:59").localeCompare(b.sortTime || "23:59"));
 
                 document.getElementById('searchInput').disabled = false;
-                document.getElementById('searchInput').placeholder = "🔍 Search Name, Ref, or Hotel...";
+                document.getElementById('searchInput').placeholder = "Search Name, Ref, or Hotel...";
                 document.getElementById('statusMessage').classList.add('hidden');
                 setActiveTab(activeTransferTab);
             }
@@ -482,10 +481,11 @@
                         let dialDestination = p.clientPhone ? `tel:${p.clientPhone}` : (manifest.driverPhone ? `tel:${manifest.driverPhone}` : `tel:0035799000000`);
                         let activePhoneStyle = p.clientPhone ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 border-slate-200 hover:bg-slate-200';
 
+                        // FIXED LOGIC: Replaced the malformed 'intent://' scheme with standard deep-linking URLs
                         let whatsappLink = "";
                         if (p.clientPhone) {
                             let cleanNumber = p.clientPhone.replace(/^00/, "+");
-                            whatsappLink = `intent:///send/phone=${cleanNumber}#Intent;scheme=whatsapp;package=com.whatsapp;end`;
+                            whatsappLink = `https://wa.me/${cleanNumber}`;
                         } else {
                             whatsappLink = "javascript:alert('No mobile number extracted for WhatsApp connection.')";
                         }
@@ -579,7 +579,7 @@
             });
 
             if (visibleCount === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-xs shadow-2xs lg:col-span-2 xl:col-span-3">No active transfers match your filtering settings.</div>`;
+                container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-sm shadow-2xs lg:col-span-2 xl:col-span-3">No active transfers match your filtering settings.</div>`;
             }
         }
     </script>
