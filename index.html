@@ -8,33 +8,44 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <!-- Secure, Local client-side QR Code rendering engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Secure, Local client-side Excel reading engine -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-[#F8FAFC] font-sans min-h-screen text-slate-900 antialiased pb-12">
 
-    <!-- HEADER: Enhanced font metrics and crisp iconography sizing adjustments -->
-    <div class="sticky top-0 bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white shadow-md px-3 py-3.5 z-20 rounded-b-3xl border-b-4 border-[#E07722]">
+    <!-- COLLAPSIBLE HEADER -->
+    <div id="orangeHeader" class="sticky top-0 bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white shadow-md px-3 pt-3 pb-1 z-20 rounded-b-3xl border-b-4 border-[#E07722] transition-all duration-300 max-h-[500px] overflow-hidden">
         <div class="max-w-xl lg:max-w-7xl mx-auto space-y-3">
             
-            <!-- Dual File Upload Input Row Configuration -->
-            <div class="grid grid-cols-2 gap-3 bg-white/15 p-2 rounded-2xl border border-white/20 text-xs lg:max-w-md lg:mx-auto shadow-inner">
-                <div class="flex flex-col gap-1 border-r border-white/25 pr-2">
-                    <span class="font-black tracking-wider uppercase text-orange-950 flex items-center gap-1">
-                        <span>🛫</span> ARRIVALS PDF
-                    </span>
-                    <input type="file" id="pdfArrivals" accept=".pdf" class="text-orange-950 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all w-full" />
+            <!-- Collapsible Segment -->
+            <div id="collapsibleContent" class="space-y-3 transition-all duration-300 opacity-100">
+                <!-- Dual File Upload Input Row Configuration -->
+                <div class="grid grid-cols-2 gap-3 bg-white/15 p-3 rounded-2xl border border-white/20 text-xs lg:max-w-md lg:mx-auto shadow-inner">
+                    <div class="flex flex-col gap-1 border-r border-white/25 pr-2">
+                        <span class="font-black tracking-wider uppercase text-orange-950 flex items-center gap-1">
+                            <span>🛫</span> ARRIVALS PDF
+                        </span>
+                        <input type="file" id="pdfArrivals" accept=".pdf" class="text-orange-950 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all w-full" />
+                    </div>
+                    <div class="flex flex-col gap-1 pl-1">
+                        <span class="font-black tracking-wider uppercase text-orange-950 flex items-center gap-1">
+                            <span>🛬</span> DEPARTURES PDF
+                        </span>
+                        <input type="file" id="pdfDepartures" accept=".pdf" class="text-orange-950 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all w-full" />
+                    </div>
+                    <div class="col-span-2 border-t border-white/15 pt-2 flex flex-col gap-1">
+                        <span class="font-black tracking-wider uppercase text-orange-950 flex items-center gap-1">
+                            <span>📊</span> DRIVERS EXCEL SHEET
+                        </span>
+                        <input type="file" id="excelDrivers" accept=".xlsx, .xls" class="text-orange-950 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all w-full" />
+                    </div>
                 </div>
-                <div class="flex flex-col gap-1 pl-1">
-                    <span class="font-black tracking-wider uppercase text-orange-950 flex items-center gap-1">
-                        <span>🛬</span> DEPARTURES PDF
-                    </span>
-                    <input type="file" id="pdfDepartures" accept=".pdf" class="text-orange-950 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all w-full" />
-                </div>
-            </div>
 
-            <!-- Global Lookup Input Field -->
-            <div class="relative lg:max-w-md lg:mx-auto">
-                <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">🔍</span>
-                <input type="text" id="searchInput" disabled placeholder="Search Name, Ref, or Hotel..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-orange-200/40 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-sm text-slate-900 font-bold placeholder-slate-400 transition-all" />
+                <!-- Global Lookup Input Field -->
+                <div class="relative lg:max-w-md lg:mx-auto">
+                    <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">🔍</span>
+                    <input type="text" id="searchInput" disabled placeholder="Search Name, Ref, or Hotel..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-orange-200/40 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-sm text-slate-900 font-bold placeholder-slate-400 transition-all" />
+                </div>
             </div>
 
             <!-- Workspace Isolation Segment Tabs -->
@@ -50,24 +61,31 @@
             <!-- Prefix Sub-Filter Selection Bar -->
             <div class="flex flex-wrap gap-1.5 justify-center pt-0.5 lg:max-w-xl lg:mx-auto text-xs font-bold">
                 <button onclick="setActivePrefix('ALL')" id="prefixAllBtn" class="bg-white text-[#1C2C5B] px-3.5 py-1.5 rounded-full shadow-xs transition-all cursor-pointer">📦 All Runs</button>
-                <button onclick="setActivePrefix('TAXI')" id="prefixTaxiBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚕 Taxis (ST/AP)</button>
-                <button onclick="setActivePrefix('SHUTTLE')" id="prefixShuttleBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">专 Shuttles (XC)</button>
-                <button onclick="setActivePrefix('ADAPTED')" id="prefixAdaptedBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">♿ Adapted (NC)</button>
+                <button onclick="setActivePrefix('TAXI')" id="prefixTaxiBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚕 Taxis</button>
+                <button onclick="setActivePrefix('SHUTTLE')" id="prefixShuttleBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚐 Shuttles</button>
+                <button onclick="setActivePrefix('ADAPTED')" id="prefixAdaptedBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">♿ Adapted</button>
+            </div>
+
+            <!-- Header Toggle Pull-Down Handle -->
+            <div class="flex justify-center pt-1 pb-0">
+                <button onclick="toggleHeader()" id="toggleBtn" class="bg-white/20 hover:bg-white/30 text-white text-[10px] uppercase font-black tracking-widest px-4 py-1 rounded-full cursor-pointer transition-all">
+                    ▲ Collapse Menu
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Active Feed Grid Container -->
-    <div class="p-3 max-w-xl lg:max-w-7xl mx-auto mt-2">
+    <!-- Active Feed Container -->
+    <div class="p-4 max-w-7xl mx-auto mt-4">
         <div id="statusMessage" class="text-center text-slate-500 my-12 text-sm bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto">
-            🍊 System Ready. Please load your active manifest schedules into the panels above.
+            🍊 System Ready. Please load your active manifest schedules or Drivers Excel sheets above.
         </div>
 
-        <!-- RENDER TARGET -->
-        <div id="manifestsContainer" class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 xl:grid-cols-3"></div>
+        <!-- RENDER TARGET: Full-Width Single-Column Row Display -->
+        <div id="manifestsContainer" class="grid grid-cols-1 gap-6 w-full"></div>
     </div>
 
-    <!-- PC Desktop Verification Modal Window Block -->
+    <!-- PC Desktop Modal Block -->
     <div id="desktopModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4" onclick="closeDesktopModal(event)">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 border border-slate-100 transform scale-100 transition-all" onclick="event.stopPropagation()">
             <div class="w-12 h-12 bg-orange-50 text-[#FF8833] rounded-full flex items-center justify-center mx-auto text-xl font-bold">📲</div>
@@ -78,8 +96,6 @@
             </div>
             
             <div id="qrcodeCanvas" class="flex justify-center p-3 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner max-w-[186px] mx-auto"></div>
-            
-            <p class="text-xs text-slate-400 font-medium leading-relaxed px-4">Scan using your phone's camera lens layout to launch contact actions directly from the desktop browser hub.</p>
             
             <div class="grid grid-cols-2 gap-2 pt-1">
                 <button onclick="copyModalNumber()" class="bg-slate-100 hover:bg-slate-200 text-[#1C2C5B] font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">📋 Copy Number</button>
@@ -92,9 +108,11 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
         let extractedManifests = [];
+        let excelDriversMap = {}; 
         let activeTransferTab = 'arrival';
         let activePrefixTab = 'ALL'; 
         let currentModalPhoneRaw = "";
+        let headerCollapsed = false;
 
         const COMMENTS_SYSTEM_STATIC_URL = "https://s34summer.github.io/Easy-Jet-Call-Log/";
         const GPS_SYSTEM_STATIC_URL = "https://departures.summertimes.com.cy/";
@@ -102,6 +120,21 @@
         document.getElementById('searchInput').addEventListener('input', renderManifestCards, false);
         document.getElementById('pdfArrivals').addEventListener('change', (e) => handlePDFUpload(e, 'arrival'), false);
         document.getElementById('pdfDepartures').addEventListener('change', (e) => handlePDFUpload(e, 'departure'), false);
+        document.getElementById('excelDrivers').addEventListener('change', handleExcelUpload, false);
+
+        function toggleHeader() {
+            headerCollapsed = !headerCollapsed;
+            const cNode = document.getElementById('collapsibleContent');
+            const btn = document.getElementById('toggleBtn');
+
+            if (headerCollapsed) {
+                cNode.classList.add('hidden', 'opacity-0');
+                btn.innerText = "▼ Expand Menu";
+            } else {
+                cNode.classList.remove('hidden', 'opacity-0');
+                btn.innerText = "▲ Collapse Menu";
+            }
+        }
 
         function highlightText(sourceText, queryText) {
             if (!queryText) return sourceText;
@@ -146,7 +179,7 @@
 
         function formatPhoneNumber(rawString) {
             if (!rawString) return "";
-            let digits = rawString.replace(/\D/g, "");
+            let digits = String(rawString).replace(/\D/g, "");
             if (digits.length < 6 || /^0+$/.test(digits)) return ""; 
             if (digits.startsWith("00")) return digits;
             return "00" + digits; 
@@ -206,6 +239,60 @@
                 navigator.clipboard.writeText(currentModalPhoneRaw);
                 alert("Phone number copied to clipboard: " + currentModalPhoneRaw);
             }
+        }
+
+        // EXCEL PARSING: Configured to pull the number from Column F (Index 5)
+        function handleExcelUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, {type: 'array', cellNF: true, cellText: true});
+                
+                excelDriversMap = {}; 
+                let processedRowsCount = 0;
+
+                workbook.SheetNames.forEach(sheetName => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    const sheetData = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: false});
+                    
+                    for (let i = 1; i < sheetData.length; i++) {
+                        const row = sheetData[i];
+                        if (!row || row.length < 2) continue;
+                        
+                        const voucher = String(row[1] || "").trim();    // Cell B
+                        const driverName = String(row[4] || "").trim(); // Cell E
+                        const driverPhone = String(row[5] || "").trim(); // Cell F (Corrected index pointer)
+                        
+                        if (voucher && voucher !== "undefined") {
+                            excelDriversMap[voucher] = {
+                                name: driverName || "Assigned Driver",
+                                phone: formatPhoneNumber(driverPhone)
+                            };
+                            processedRowsCount++;
+                        }
+                    }
+                });
+                
+                applyExcelDriversToLoadedManifests();
+                alert(`Successfully processed all tabs! Loaded ${processedRowsCount} driver assignments.`);
+                renderManifestCards();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function applyExcelDriversToLoadedManifests() {
+            extractedManifests.forEach(manifest => {
+                const vId = manifest.voucherId;
+                if (vId && excelDriversMap[vId]) {
+                    if (excelDriversMap[vId].name) manifest.busSupplier = excelDriversMap[vId].name;
+                    if (excelDriversMap[vId].phone) {
+                        manifest.driverPhone = excelDriversMap[vId].phone;
+                    }
+                }
+            });
         }
 
         async function handlePDFUpload(e, transferType) {
@@ -337,6 +424,12 @@
                 }
             });
 
+            if (globalVoucherNo !== "N/A" && excelDriversMap[globalVoucherNo]) {
+                const matchData = excelDriversMap[globalVoucherNo];
+                if (matchData.name) busSupplierName = matchData.name;
+                if (matchData.phone) driverPhone = matchData.phone;
+            }
+
             for (let i = 0; i < processedLines.length; i++) {
                 let currentLine = processedLines[i];
                 const refMatch = currentLine.text.match(/\b(\d{7})\b/);
@@ -461,7 +554,7 @@
                 visibleCount++;
 
                 const manifestBlock = document.createElement('div');
-                manifestBlock.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden h-fit";
+                manifestBlock.className = "bg-white rounded-3xl shadow-md hover:shadow-xl border border-slate-200/80 overflow-hidden w-full h-fit transition-all duration-300";
 
                 let stopsHtml = '';
                 manifest.stops.forEach(stop => {
@@ -481,7 +574,6 @@
                         let dialDestination = p.clientPhone ? `tel:${p.clientPhone}` : (manifest.driverPhone ? `tel:${manifest.driverPhone}` : `tel:0035799000000`);
                         let activePhoneStyle = p.clientPhone ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 border-slate-200 hover:bg-slate-200';
 
-                        // FIXED LOGIC: Replaced the malformed 'intent://' scheme with standard deep-linking URLs
                         let whatsappLink = "";
                         if (p.clientPhone) {
                             let cleanNumber = p.clientPhone.replace(/^00/, "+");
@@ -496,21 +588,21 @@
                         const safeJSPhone = p.clientPhone ? p.clientPhone : (manifest.driverPhone ? manifest.driverPhone : "0035799000000");
 
                         passengersHtml += `
-                            <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 gap-4">
+                            <div class="flex items-center justify-between py-3.5 border-b border-slate-100 last:border-0 gap-4">
                                 <div class="truncate flex-1">
-                                    <div class="text-base font-medium text-slate-900 tracking-wide uppercase">
+                                    <div class="text-base font-bold text-slate-900 tracking-wide uppercase">
                                         ${highlightedName}
                                     </div>
-                                    <div class="text-xs text-slate-500 font-mono mt-0.5 font-medium normal-case">
-                                        Ref: <span class="text-slate-600 bg-slate-100 px-1 rounded font-semibold">${highlightedRef}</span>
-                                        <span class="ml-2 px-1 rounded bg-orange-50 text-[#FF8833] font-bold">PAX: ${p.paxCount}</span>
+                                    <div class="text-xs text-slate-500 font-mono mt-1 font-medium normal-case flex items-center gap-2">
+                                        Ref: <span class="text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded-md font-semibold">${highlightedRef}</span>
+                                        <span class="px-1.5 py-0.5 rounded-md bg-orange-50 text-[#FF8833] font-black">PAX: ${p.paxCount}</span>
                                     </div>
                                 </div>
-                                <div class="flex gap-1 shrink-0">
-                                    <button onclick="handleSystemRedirect('${safeRef}', '${COMMENTS_SYSTEM_STATIC_URL}')" aria-label="Notes" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">📝</button>
-                                    <a href="${dialDestination}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'tel')" title="Cellular Dial" class="w-9 h-9 border rounded-lg flex items-center justify-center text-base transition-all shadow-2xs ${activePhoneStyle}">📞</a>
-                                    <a href="${whatsappLink}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'whatsapp')" title="WhatsApp Call" class="w-9 h-9 border rounded-lg flex items-center justify-center text-base transition-all shadow-2xs ${activeWhatsAppStyle}">💬</a>
-                                    <button onclick="handleSystemRedirect('${safeRef}', '${GPS_SYSTEM_STATIC_URL}')" aria-label="Track" class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">🚌</button>
+                                <div class="flex gap-1.5 shrink-0">
+                                    <button onclick="handleSystemRedirect('${safeRef}', '${COMMENTS_SYSTEM_STATIC_URL}')" aria-label="Notes" class="w-10 h-10 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">📝</button>
+                                    <a href="${dialDestination}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'tel')" title="Cellular Dial" class="w-10 h-10 border rounded-xl flex items-center justify-center text-base transition-all shadow-xs ${activePhoneStyle}">📞</a>
+                                    <a href="${whatsappLink}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'whatsapp')" title="WhatsApp Call" class="w-10 h-10 border rounded-xl flex items-center justify-center text-base transition-all shadow-xs ${activeWhatsAppStyle}">💬</a>
+                                    <button onclick="handleSystemRedirect('${safeRef}', '${GPS_SYSTEM_STATIC_URL}')" aria-label="Track" class="w-10 h-10 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">🚌</button>
                                 </div>
                             </div>
                         `;
@@ -522,15 +614,15 @@
                     const timingLabel = manifest.type === 'arrival' ? 'Flight Arr' : 'Pick Up';
 
                     stopsHtml += `
-                        <div class="p-3 bg-white border-b border-slate-100 last:border-0">
-                            <div class="flex justify-between items-start mb-2 gap-2">
-                                <span class="text-sm font-black text-[#FF8833] tracking-wide uppercase flex items-center gap-1.5 flex-1 leading-tight">
-                                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
+                        <div class="p-5 bg-white border-b border-slate-100 last:border-0">
+                            <div class="flex justify-between items-start mb-3 gap-2">
+                                <span class="text-base font-black text-[#E07722] tracking-wide uppercase flex items-center gap-1.5 flex-1 leading-tight">
+                                    <span class="inline-block w-2 h-2 rounded-full bg-orange-400 shrink-0"></span>
                                     ${highlightedHotel}
                                 </span>
-                                <span class="text-xs font-black bg-slate-100 text-slate-800 border border-slate-200 px-2 py-0.5 rounded-md font-mono shrink-0">🕒 ${timingLabel}: ${stop.pickupTime}</span>
+                                <span class="text-xs font-black bg-slate-100 text-slate-800 border border-slate-200 px-2.5 py-1 rounded-lg font-mono shrink-0">🕒 ${timingLabel}: ${stop.pickupTime}</span>
                             </div>
-                            <div class="pl-2.5 border-l-2 border-slate-200 space-y-1">
+                            <div class="pl-3.5 border-l-2 border-slate-200 space-y-1">
                                 ${passengersHtml}
                             </div>
                         </div>
@@ -542,30 +634,30 @@
                 const displayVoucher = manifest.voucherId !== "N/A" ? manifest.voucherId : "Unified Run";
 
                 let driverDialDestination = manifest.driverPhone ? `tel:${manifest.driverPhone}` : `tel:0035799000000`;
-                let driverPhoneStyle = manifest.driverPhone ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-600' : 'bg-white/20 text-slate-200 border-white/20';
+                let driverPhoneStyle = manifest.driverPhone ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-[#1C2C5B]/10 text-slate-500 border-slate-300 pointer-events-none opacity-60';
                 let driverButtonLabel = manifest.driverPhone ? `📞 CALL DRIVER (${manifest.driverPhone})` : `📞 NO DRIVER ASSIGNED`;
 
                 const safeDriverName = "ASSIGNED SUPPLIER DRIVER";
                 const safeDriverPhone = manifest.driverPhone ? manifest.driverPhone : "0035799000000";
 
                 manifestBlock.innerHTML = `
-                    <div class="bg-gradient-to-r from-[#1C2C5B] to-[#0A163A] text-white p-3 space-y-2">
-                        <div class="flex justify-between items-center text-[9px] font-mono font-semibold tracking-wider text-slate-300 mb-1 normal-case">
+                    <div class="bg-gradient-to-r from-[#1C2C5B] to-[#0A163A] text-white p-5 space-y-3">
+                        <div class="flex justify-between items-center text-[10px] font-mono font-semibold tracking-wider text-slate-300 mb-1 normal-case">
                             <span>Voucher ID: <span class="text-orange-400 font-bold">${displayVoucher}</span></span>
-                            <span class="text-white bg-orange-600 px-1.5 py-0.5 rounded font-bold text-[8px] tracking-widest uppercase">${manifest.type} VIEW</span>
+                            <span class="text-white bg-orange-600 px-2 py-0.5 rounded font-bold text-[9px] tracking-widest uppercase">${manifest.type} VIEW</span>
                         </div>
                         <div class="flex justify-between items-end mt-1">
                             <div>
-                                <h2 class="text-xs font-semibold text-slate-200 normal-case leading-tight">${highlightedSupplier}</h2>
-                                <p class="text-[11px] text-slate-400 font-medium normal-case mt-0.5">${manifest.vehicle}</p>
+                                <h2 class="text-sm font-bold text-slate-100 normal-case leading-tight">${highlightedSupplier}</h2>
+                                <p class="text-xs text-slate-400 font-medium normal-case mt-1">${manifest.vehicle}</p>
                             </div>
                             <div class="text-right shrink-0">
                                 <span class="text-sm font-black tracking-wide text-orange-400 block uppercase">FLIGHT: ${highlightedFlight}</span>
-                                <span class="text-[10px] text-slate-300 font-mono block">Time: ${manifest.routeTime}</span>
+                                <span class="text-xs text-slate-300 font-mono block mt-1">Time: ${manifest.routeTime}</span>
                             </div>
                         </div>
-                        <div class="pt-1">
-                            <a href="${driverDialDestination}" onclick="handleContactClick(event, '${safeDriverName}', '${safeDriverPhone}', 'tel')" class="w-full text-center block text-[10px] font-black tracking-widest py-1.5 px-3 border rounded-xl transition-all ${driverPhoneStyle}">
+                        <div class="pt-2">
+                            <a href="${driverDialDestination}" onclick="handleContactClick(event, '${safeDriverName}', '${safeDriverPhone}', 'tel')" class="w-full text-center block text-xs font-black tracking-widest py-2.5 px-4 border rounded-xl transition-all ${driverPhoneStyle}">
                                 ${driverButtonLabel}
                             </a>
                         </div>
@@ -579,7 +671,7 @@
             });
 
             if (visibleCount === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-sm shadow-2xs lg:col-span-2 xl:col-span-3">No active transfers match your filtering settings.</div>`;
+                container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-sm shadow-2xs">No active transfers match your filtering settings.</div>`;
             }
         }
     </script>
