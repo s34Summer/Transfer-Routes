@@ -144,9 +144,9 @@
         }
 
         function setActiveTab(tabType) {
-            activeTransferTab = tabType;
             const arrBtn = document.getElementById('tabArrivalBtn');
             const depBtn = document.getElementById('tabDepartureBtn');
+            activeTransferTab = tabType;
 
             if (tabType === 'arrival') {
                 arrBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-2 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5";
@@ -177,12 +177,17 @@
             renderManifestCards();
         }
 
-        function formatPhoneNumber(rawString) {
+        function formatClientPhoneNumber(rawString) {
             if (!rawString) return "";
             let digits = String(rawString).replace(/\D/g, "");
             if (digits.length < 6 || /^0+$/.test(digits)) return ""; 
             if (digits.startsWith("00")) return digits;
             return "00" + digits; 
+        }
+
+        function formatDriverPhoneNumber(rawString) {
+            if (!rawString) return "";
+            return String(rawString).replace(/\s+/g, "").trim();
         }
 
         function handleSystemRedirect(refNum, systemUrlBase) {
@@ -213,7 +218,10 @@
                 if (mode === 'tel') {
                     qrPayload = `tel:${phone}`;
                 } else {
-                    let cleanWhatsAppNum = phone.replace(/^00/, "+");
+                    let cleanWhatsAppNum = phone.startsWith("00") ? phone.replace(/^00/, "+") : phone;
+                    if (!cleanWhatsAppNum.startsWith("+") && cleanWhatsAppNum.length > 6) {
+                        cleanWhatsAppNum = "+" + cleanWhatsAppNum;
+                    }
                     qrPayload = `https://wa.me/${cleanWhatsAppNum}`;
                 }
                 
@@ -241,7 +249,6 @@
             }
         }
 
-        // EXCEL PARSING: Configured to pull the number from Column F (Index 5)
         function handleExcelUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -262,14 +269,14 @@
                         const row = sheetData[i];
                         if (!row || row.length < 2) continue;
                         
-                        const voucher = String(row[1] || "").trim();    // Cell B
-                        const driverName = String(row[4] || "").trim(); // Cell E
-                        const driverPhone = String(row[5] || "").trim(); // Cell F (Corrected index pointer)
+                        const voucher = String(row[1] || "").trim();    
+                        const driverName = String(row[4] || "").trim(); 
+                        const driverPhone = String(row[5] || "").trim(); 
                         
                         if (voucher && voucher !== "undefined") {
                             excelDriversMap[voucher] = {
                                 name: driverName || "Assigned Driver",
-                                phone: formatPhoneNumber(driverPhone)
+                                phone: formatDriverPhoneNumber(driverPhone)
                             };
                             processedRowsCount++;
                         }
@@ -459,7 +466,7 @@
                     currentLine.tokens.forEach(token => {
                         let cleanDigits = token.replace(/\D/g, "");
                         if (cleanDigits.length >= 8 && cleanDigits !== refNum) {
-                            clientPhone = formatPhoneNumber(token);
+                            clientPhone = formatClientPhoneNumber(token); 
                         }
                     });
 
@@ -571,21 +578,22 @@
                         const highlightedName = highlightText(p.leadName, query);
                         const highlightedRef = highlightText(p.refNum, query);
 
-                        let dialDestination = p.clientPhone ? `tel:${p.clientPhone}` : (manifest.driverPhone ? `tel:${manifest.driverPhone}` : `tel:0035799000000`);
-                        let activePhoneStyle = p.clientPhone ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 border-slate-200 hover:bg-slate-200';
-
-                        let whatsappLink = "";
+                        // CRITICAL CHANGE: If the client mobile phone field is empty, do not show any communication links
+                        let communicationButtonsHtml = "";
                         if (p.clientPhone) {
-                            let cleanNumber = p.clientPhone.replace(/^00/, "+");
-                            whatsappLink = `https://wa.me/${cleanNumber}`;
-                        } else {
-                            whatsappLink = "javascript:alert('No mobile number extracted for WhatsApp connection.')";
+                            let dialDestination = `tel:${p.clientPhone}`;
+                            let cleanNumber = p.clientPhone.startsWith("00") ? p.clientPhone.replace(/^00/, "+") : p.clientPhone;
+                            if (!cleanNumber.startsWith("+") && cleanNumber.length > 6) {
+                                cleanNumber = "+" + cleanNumber;
+                            }
+                            let whatsappLink = `https://wa.me/${cleanNumber}`;
+                            const safeJSName = p.leadName.replace(/'/g, "\\'");
+
+                            communicationButtonsHtml = `
+                                <a href="${dialDestination}" onclick="handleContactClick(event, '${safeJSName}', '${p.clientPhone}', 'tel')" title="Cellular Dial" class="w-10 h-10 border rounded-xl flex items-center justify-center text-base transition-all shadow-xs bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100">📞</a>
+                                <a href="${whatsappLink}" onclick="handleContactClick(event, '${safeJSName}', '${p.clientPhone}', 'whatsapp')" title="WhatsApp Call" class="w-10 h-10 border rounded-xl flex items-center justify-center text-base transition-all shadow-xs bg-green-50 text-green-600 border-green-200 hover:bg-green-100">💬</a>
+                            `;
                         }
-
-                        let activeWhatsAppStyle = p.clientPhone ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100' : 'bg-slate-100 border-slate-200 hover:bg-slate-200 opacity-50';
-
-                        const safeJSName = p.leadName.replace(/'/g, "\\'");
-                        const safeJSPhone = p.clientPhone ? p.clientPhone : (manifest.driverPhone ? manifest.driverPhone : "0035799000000");
 
                         passengersHtml += `
                             <div class="flex items-center justify-between py-3.5 border-b border-slate-100 last:border-0 gap-4">
@@ -594,14 +602,13 @@
                                         ${highlightedName}
                                     </div>
                                     <div class="text-xs text-slate-500 font-mono mt-1 font-medium normal-case flex items-center gap-2">
-                                        Ref: <span class="text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded-md font-semibold">${highlightedRef}</span>
+                                        Ref: <span class="text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded-md font-semibold">${highlightedRef}</span>
                                         <span class="px-1.5 py-0.5 rounded-md bg-orange-50 text-[#FF8833] font-black">PAX: ${p.paxCount}</span>
                                     </div>
                                 </div>
                                 <div class="flex gap-1.5 shrink-0">
                                     <button onclick="handleSystemRedirect('${safeRef}', '${COMMENTS_SYSTEM_STATIC_URL}')" aria-label="Notes" class="w-10 h-10 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">📝</button>
-                                    <a href="${dialDestination}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'tel')" title="Cellular Dial" class="w-10 h-10 border rounded-xl flex items-center justify-center text-base transition-all shadow-xs ${activePhoneStyle}">📞</a>
-                                    <a href="${whatsappLink}" onclick="handleContactClick(event, '${safeJSName}', '${safeJSPhone}', 'whatsapp')" title="WhatsApp Call" class="w-10 h-10 border rounded-xl flex items-center justify-center text-base transition-all shadow-xs ${activeWhatsAppStyle}">💬</a>
+                                    ${communicationButtonsHtml}
                                     <button onclick="handleSystemRedirect('${safeRef}', '${GPS_SYSTEM_STATIC_URL}')" aria-label="Track" class="w-10 h-10 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">🚌</button>
                                 </div>
                             </div>
@@ -613,16 +620,22 @@
                     const highlightedHotel = highlightText(stop.hotelName, query);
                     const timingLabel = manifest.type === 'arrival' ? 'Flight Arr' : 'Pick Up';
 
+                    // CRITICAL CHANGE: Reordered layout structure to place the timing badge prominently in the middle row at text-xl
                     stopsHtml += `
-                        <div class="p-5 bg-white border-b border-slate-100 last:border-0">
-                            <div class="flex justify-between items-start mb-3 gap-2">
-                                <span class="text-base font-black text-[#E07722] tracking-wide uppercase flex items-center gap-1.5 flex-1 leading-tight">
-                                    <span class="inline-block w-2 h-2 rounded-full bg-orange-400 shrink-0"></span>
+                        <div class="p-5 bg-white border-b border-slate-100 last:border-0 space-y-4">
+                            <div class="text-center">
+                                <span class="text-lg font-black text-[#E07722] tracking-wide uppercase block leading-tight">
                                     ${highlightedHotel}
                                 </span>
-                                <span class="text-xs font-black bg-slate-100 text-slate-800 border border-slate-200 px-2.5 py-1 rounded-lg font-mono shrink-0">🕒 ${timingLabel}: ${stop.pickupTime}</span>
                             </div>
-                            <div class="pl-3.5 border-l-2 border-slate-200 space-y-1">
+                            
+                            <div class="flex justify-center">
+                                <span class="text-xl font-black bg-slate-100 text-slate-900 border border-slate-300 px-5 py-1.5 rounded-2xl font-mono shadow-xs">
+                                    🕒 ${timingLabel}: ${stop.pickupTime}
+                                </span>
+                            </div>
+                            
+                            <div class="pl-1 space-y-1">
                                 ${passengersHtml}
                             </div>
                         </div>
