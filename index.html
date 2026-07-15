@@ -14,10 +14,10 @@
 <body class="bg-[#F8FAFC] font-sans min-h-screen text-slate-900 antialiased pb-12">
 
     <!-- COLLAPSIBLE HEADER -->
-    <div id="orangeHeader" class="sticky top-0 bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white shadow-md px-3 pt-3 pb-1 z-20 rounded-b-3xl border-b-4 border-[#E07722] transition-all duration-300 max-h-[500px] overflow-hidden">
-        <div class="max-w-xl lg:max-w-7xl mx-auto space-y-3">
+    <div id="orangeHeader" class="sticky top-0 bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white shadow-md px-3 pt-2 pb-1 z-20 rounded-b-3xl border-b-4 border-[#E07722] transition-all duration-300 max-h-[600px] overflow-hidden">
+        <div class="max-w-xl lg:max-w-7xl mx-auto space-y-2.5">
             
-            <!-- Collapsible Segment -->
+            <!-- Collapsible Segment (Now strictly files upload fields) -->
             <div id="collapsibleContent" class="space-y-3 transition-all duration-300 opacity-100">
                 <div class="grid grid-cols-2 gap-3 bg-white/15 p-3 rounded-2xl border border-white/20 text-xs lg:max-w-md lg:mx-auto shadow-inner">
                     <div class="flex flex-col gap-1 border-r border-white/25 pr-2">
@@ -39,35 +39,35 @@
                         <input type="file" id="excelDrivers" accept=".xlsx, .xls" class="text-orange-950 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-black file:bg-white file:text-[#E07722] cursor-pointer hover:bg-orange-50 transition-all w-full" />
                     </div>
                 </div>
+            </div>
 
-                <!-- Global Lookup Input Field -->
-                <div class="relative lg:max-w-md lg:mx-auto">
-                    <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">🔍</span>
-                    <input type="text" id="searchInput" disabled placeholder="Search Name, Ref, or Hotel..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-orange-200/40 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-sm text-slate-900 font-bold placeholder-slate-400 transition-all" />
-                </div>
+            <!-- ALWAYS VISIBLE SEARCH BAR (Moved out of collapsible container) -->
+            <div class="relative lg:max-w-md lg:mx-auto">
+                <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">🔍</span>
+                <input type="text" id="searchInput" disabled placeholder="Search Name, Ref, or Hotel..." class="w-full pl-9 pr-3 py-2 bg-white border border-orange-200/40 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-sm text-slate-900 font-bold placeholder-slate-400 transition-all" />
             </div>
 
             <!-- Workspace Isolation Segment Tabs -->
             <div class="grid grid-cols-2 gap-1 bg-[#1C2C5B] p-1 rounded-xl text-center text-sm font-bold lg:max-w-md lg:mx-auto shadow-md">
-                <button onclick="setActiveTab('arrival')" id="tabArrivalBtn" class="bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-2 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5">
-                    <span>🛬</span> Arrivals Only
+                <button onclick="setActiveTab('arrival')" id="tabArrivalBtn" class="bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-1.5 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5">
+                    <span>🛬</span> Arrivals
                 </button>
-                <button onclick="setActiveTab('departure')" id="tabDepartureBtn" class="text-slate-300 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white">
-                    <span>🛫</span> Departures Only
+                <button onclick="setActiveTab('departure')" id="tabDepartureBtn" class="text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white">
+                    <span>🛫</span> Departures
                 </button>
             </div>
 
             <!-- Prefix Sub-Filter Selection Bar -->
             <div class="flex flex-wrap gap-1.5 justify-center pt-0.5 lg:max-w-xl lg:mx-auto text-xs font-bold">
-                <button onclick="setActivePrefix('ALL')" id="prefixAllBtn" class="bg-white text-[#1C2C5B] px-3.5 py-1.5 rounded-full shadow-xs transition-all cursor-pointer">📦 All Runs</button>
-                <button onclick="setActivePrefix('TAXI')" id="prefixTaxiBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚕 Taxis</button>
-                <button onclick="setActivePrefix('SHUTTLE')" id="prefixShuttleBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚐 Shuttles</button>
-                <button onclick="setActivePrefix('ADAPTED')" id="prefixAdaptedBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">♿ Adapted</button>
+                <button onclick="setActivePrefix('ALL')" id="prefixAllBtn" class="bg-white text-[#1C2C5B] px-3.5 py-1 rounded-full shadow-xs transition-all cursor-pointer">📦 All</button>
+                <button onclick="setActivePrefix('TAXI')" id="prefixTaxiBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚕 Taxis</button>
+                <button onclick="setActivePrefix('SHUTTLE')" id="prefixShuttleBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">🚐 Shuttles</button>
+                <button onclick="setActivePrefix('ADAPTED')" id="prefixAdaptedBtn" class="bg-[#1C2C5B]/30 text-white px-3.5 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50">♿ Adapted</button>
             </div>
 
             <!-- Header Toggle Pull-Down Handle -->
-            <div class="flex justify-center pt-1 pb-0">
-                <button onclick="toggleHeader()" id="toggleBtn" class="bg-white/20 hover:bg-white/30 text-white text-[10px] uppercase font-black tracking-widest px-4 py-1 rounded-full cursor-pointer transition-all">
+            <div class="flex justify-center pt-0.5 pb-0">
+                <button onclick="toggleHeader()" id="toggleBtn" class="bg-white/20 hover:bg-white/30 text-white text-[9px] uppercase font-black tracking-widest px-4 py-0.5 rounded-full cursor-pointer transition-all">
                     ▲ Collapse Menu
                 </button>
             </div>
@@ -75,7 +75,7 @@
     </div>
 
     <!-- Active Feed Container -->
-    <div class="p-4 max-w-7xl mx-auto mt-4">
+    <div class="p-4 max-w-7xl mx-auto mt-2">
         <div id="statusMessage" class="text-center text-slate-500 my-12 text-sm bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto">
             🍊 System Ready. Please load your active manifest schedules or Drivers Excel sheets above.
         </div>
@@ -103,7 +103,7 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // 171 MASTER CYPRUS HOTEL TELEPHONE REFERENCE ENTRIES DIRECTORY (LOADED FROM SPREADSHEETS)
+        // MASTER CYPRUS HOTEL DIRECTORY
         const HOTEL_DIRECTORY = {
             "ADAMS BEACH": "23840000",
             "AKTEA BEACH VILLAGE": "23845000",
@@ -320,11 +320,11 @@
             activeTransferTab = tabType;
 
             if (tabType === 'arrival') {
-                arrBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-2 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5";
-                depBtn.className = "text-slate-300 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white";
+                arrBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-1.5 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5";
+                depBtn.className = "text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white";
             } else {
-                depBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-2 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5";
-                arrBtn.className = "text-slate-300 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white";
+                depBtn.className = "bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-1.5 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5";
+                arrBtn.className = "text-slate-300 py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white";
             }
             renderManifestCards();
         }
@@ -340,9 +340,9 @@
 
             Object.keys(btns).forEach(key => {
                 if (key === prefixType) {
-                    btns[key].className = "bg-white text-[#1C2C5B] px-3.5 py-1.5 rounded-full shadow-xs transition-all cursor-pointer";
+                    btns[key].className = "bg-white text-[#1C2C5B] px-3.5 py-1 rounded-full shadow-xs transition-all cursor-pointer";
                 } else {
-                    btns[key].className = "bg-[#1C2C5B]/30 text-white px-3.5 py-1.5 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50";
+                    btns[key].className = "bg-[#1C2C5B]/30 text-white px-3.5 py-1 rounded-full transition-all cursor-pointer hover:bg-[#1C2C5B]/50";
                 }
             });
             renderManifestCards();
@@ -646,7 +646,6 @@
                         }
                     });
 
-                    // SCAN PAX: Matches distinct voucher matrix integer columns
                     let numericTokensOnRow = [];
                     currentLine.rawItems.forEach(item => {
                         let rawStr = item.text.trim();
@@ -783,11 +782,9 @@
                     const highlightedHotel = highlightText(stop.hotelName, query);
                     const timingLabel = manifest.type === 'arrival' ? 'Arr' : 'P/U';
                     
-                    // DIRECTORY INTERCEPTOR MATCHING LAYER
                     let receptionCallHtml = "";
                     const normalizedHotelKey = stop.hotelName.toUpperCase().trim();
                     
-                    // Match lookup check via substring logic
                     let matchedKey = Object.keys(HOTEL_DIRECTORY).find(k => normalizedHotelKey.includes(k) || k.includes(normalizedHotelKey));
                     if (matchedKey) {
                         const recNum = HOTEL_DIRECTORY[matchedKey];
