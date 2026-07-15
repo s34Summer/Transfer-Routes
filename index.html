@@ -19,7 +19,6 @@
             
             <!-- Collapsible Segment -->
             <div id="collapsibleContent" class="space-y-3 transition-all duration-300 opacity-100">
-                <!-- Dual File Upload Input Row Configuration -->
                 <div class="grid grid-cols-2 gap-3 bg-white/15 p-3 rounded-2xl border border-white/20 text-xs lg:max-w-md lg:mx-auto shadow-inner">
                     <div class="flex flex-col gap-1 border-r border-white/25 pr-2">
                         <span class="font-black tracking-wider uppercase text-orange-950 flex items-center gap-1">
@@ -50,7 +49,7 @@
 
             <!-- Workspace Isolation Segment Tabs -->
             <div class="grid grid-cols-2 gap-1 bg-[#1C2C5B] p-1 rounded-xl text-center text-sm font-bold lg:max-w-md lg:mx-auto shadow-md">
-                <button onclick="setActiveTab('arrival')" id="tabArrivalBtn" class="bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-2 rounded-lg transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5">
+                <button onclick="setActiveTab('arrival')" id="tabArrivalBtn" class="bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white py-2 rounded-lg transition-all cursor-pointer font-bold shadow-xs flex items-center justify-center gap-1.5">
                     <span>🛬</span> Arrivals Only
                 </button>
                 <button onclick="setActiveTab('departure')" id="tabDepartureBtn" class="text-slate-300 py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:text-white">
@@ -81,11 +80,10 @@
             🍊 System Ready. Please load your active manifest schedules or Drivers Excel sheets above.
         </div>
 
-        <!-- RENDER TARGET: Full-Width Single-Column Row Display -->
-        <div id="manifestsContainer" class="grid grid-cols-1 gap-6 w-full"></div>
+        <div id="manifestsContainer" class="grid grid-cols-1 gap-4 w-full"></div>
     </div>
 
-    <!-- PC Desktop Modal Block -->
+    <!-- PC Desktop Verification Modal Window Block -->
     <div id="desktopModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4" onclick="closeDesktopModal(event)">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 border border-slate-100 transform scale-100 transition-all" onclick="event.stopPropagation()">
             <div class="w-12 h-12 bg-orange-50 text-[#FF8833] rounded-full flex items-center justify-center mx-auto text-xl font-bold">📲</div>
@@ -94,9 +92,7 @@
                 <p id="modalPhoneNumber" class="text-lg font-mono font-bold text-slate-600 tracking-wider mt-1"></p>
                 <p id="modalActionType" class="text-xs uppercase font-black tracking-widest text-[#FF8833] mt-0.5"></p>
             </div>
-            
             <div id="qrcodeCanvas" class="flex justify-center p-3 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner max-w-[186px] mx-auto"></div>
-            
             <div class="grid grid-cols-2 gap-2 pt-1">
                 <button onclick="copyModalNumber()" class="bg-slate-100 hover:bg-slate-200 text-[#1C2C5B] font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">📋 Copy Number</button>
                 <button onclick="document.getElementById('desktopModal').classList.add('hidden')" class="bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">✕ Close</button>
@@ -106,6 +102,181 @@
 
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        // 171 MASTER CYPRUS HOTEL TELEPHONE REFERENCE ENTRIES DIRECTORY (LOADED FROM SPREADSHEETS)
+        const HOTEL_DIRECTORY = {
+            "ADAMS BEACH": "23840000",
+            "AKTEA BEACH VILLAGE": "23845000",
+            "AKTI BEACH": "26272777",
+            "ALECOS HOTEL APTS": "26950225",
+            "ALEXANDER THE GREAT": "25274590",
+            "ALIATHON AEGEAN": "26964400",
+            "ALION BEACH": "23722900",
+            "ALMYRA HOTEL": "26888700",
+            "ALVA HOTEL APTS": "23831515",
+            "AMANTI": "25274590",
+            "AMARANDE HOTEL": "23819900",
+            "AMAVI HOTEL": "25274590",
+            "AMETHYST NAPA": "23725985",
+            "ANAIS BAY": "23831351",
+            "ANASTASIA": "23832633",
+            "ANDREOTIS HOTEL APTS": "23831250",
+            "ANEMI SUITES": "26945666",
+            "ANESIS HOTEL": "23721104",
+            "ANMARIA BEACH": "23725300",
+            "ANNABELLE HOTEL": "26885000",
+            "ANTHEA HOTEL APARTMENTS": "23721411",
+            "ANTIGONI HOTEL": "22320435",
+            "AQUAMARE HOTEL": "26966000",
+            "ASCOS BEACH": "26621801",
+            "ASTERIAS BEACH": "23201000",
+            "ATHENA BEACH HOTEL": "26965300",
+            "ATHENA ROYAL BEACH": "26884600",
+            "ATLANTICA AENEAS RESORT": "23724000",
+            "ATLANTICA AKTEON": "26956770",
+            "ATLANTICA AQUA BLUE": "23849999",
+            "ATLANTICA CALLISTO": "23829900",
+            "ATLANTICA GOLDEN": "26947777",
+            "ATLANTICA MARE VILLAGE": "23721401",
+            "ATLANTICA PANTHEA": "23202300",
+            "ATLANTICA SANCTA NAPA": "23721011",
+            "ATLANTICA SUNDARDEN BEACH": "23721000",
+            "ATLANTICA SUNGARDEN PARK": "23500500",
+            "AVANTI HOTEL": "26965555",
+            "AVANTI VILLAGE": "26965555",
+            "AVLIDA HOTEL": "26946000",
+            "AZIA BEACH": "26845100",
+            "BASILICA GARDENS": "26938487",
+            "BOHEMIAN GARDENS": "23814120",
+            "CALI RESORT & SPA": "26956868",
+            "CAPITAL COAST BEACH": "26201000",
+            "CAPO BAY": "23831101",
+            "CAPTAIN PEIR": "23831433",
+            "CAVO MARIS": "23832043",
+            "CAVO ZOE SEASIDE": "23730500",
+            "CHRISTABELLA HTL APTS": "23721860",
+            "CHRISTOFINIA HOTEL": "23816000",
+            "CONSTANTINOS THE GREAT": "23834000",
+            "CORAL BEACH HOTEL": "26881000",
+            "CORALLIA HOTEL APTS": "26622121",
+            "COSMELENIA": "23723060",
+            "COSMO NAPA": "23840900",
+            "CRYSTAL COVE HOTEL": "23845900",
+            "CRYSTAL SPRINGS": "23826900",
+            "CYNTHIANNA BEACH": "26933900",
+            "CYPRIA BAY HOTEL": "26882688",
+            "CYPRIA MARIS HOTEL": "26964111",
+            "DAMON APTS": "26949300",
+            "DIONYSOS HOTEL": "26933414",
+            "ELENI HOLIDAY VILLAGE": "26934200",
+            "ELIGONIA HOTEL APTS": "23819292",
+            "ELYSIUM HOTEL": "26844444",
+            "EURONAPA HTL APTS": "23722444",
+            "EVABELLE NAPA": "23723100",
+            "EVALENA HOTEL": "23832222",
+            "FAROS HOTEL": "23816100",
+            "FLAMINGO PARADISE": "23843800",
+            "GAIA SUN N BLUE": "23723600",
+            "GOLDEN COAST": "23814000",
+            "GRECIAN BAY": "23842000",
+            "GRECIAN PARK": "23844000",
+            "GRECIAN SANDS": "23721616",
+            "GREEN BUNGALOWS": "23721511",
+            "HELIOS BAY APTS": "26935656",
+            "ILIADA BEACH": "23833200",
+            "IVI MARE HOTEL": "26913555",
+            "KAPETANIOS AQUA RESORT": "26964000",
+            "KAPETANIOS BAY": "23831170",
+            "KEFALONITIS APTS": "26945866",
+            "KEFALOS VILLAGE": "26934000",
+            "KING EVELTHON HOTEL": "26930100",
+            "KISSOS HOTEL": "26936111",
+            "KOKKINOS  BOUTIQUE": "23831444",
+            "KONNOS BAY HOTEL": "23831630",
+            "LAURA BEACH": "26944900",
+            "LEDRA BEACH": "26964848",
+            "LIMANAKI BEACH": "23721600",
+            "LIVAS HTL APTS": "23831756",
+            "LOUIS ALTHEA BEACH": "23814141",
+            "LOUTISIANA": "23722666",
+            "M BOUTIQUE": "26933500",
+            "MAKRONISSOS VILLAGE": "23721416",
+            "MALAMA VILLAGE": "23822000",
+            "MANDALENA APTS": "23832944",
+            "MANDALI HOTEL": "23814100",
+            "MARGADINA HOTEL": "23815000",
+            "MARINA HOTEL": "23721721",
+            "MARIS GRAND WATERPARK": "23740999",
+            "MARLITA BEACH": "23831420",
+            "MAYFAIR HOTEL": "26948000",
+            "MELISSI BEACH": "23724800",
+            "MELPO ANITA": "23721921",
+            "MIMOSA BEACH": "23832797",
+            "MYROU ANDROU": "23832810",
+            "NAPA MERMAID": "23721606",
+            "NAPA PLAZA": "23816555",
+            "NARCISSOS": "23833800",
+            "NELIA BEACH": "23722727",
+            "NELIA GARDENS": "23723700",
+            "NEREUS HOTEL": "26943101",
+            "NESTOR HOTEL": "23722880",
+            "NICHOLAS COLOR": "23723988",
+            "NISSI BEACH": "23721021",
+            "NISSI BLU BEACH": "23200500",
+            "NISSI PARK": "23721121",
+            "NISSIANA HOTEL": "23725800",
+            "ODESSA BEACH": "23831645",
+            "OKEANOS BEACH": "23724440",
+            "OLYMPIC LAGOON": "25274590",
+            "PANDREAM APTS": "26964888",
+            "PAPANTONIA APTS": "23832097",
+            "PAPHOS BREEZE": "26950200",
+            "PAPHOS GARDENS": "26882000",
+            "PAVLO NAPA BEACH": "23722400",
+            "PERNERA BEACH": "23831011",
+            "PETROSANA HTL APTS": "23725444",
+            "PHEATHON BEACH": "26964600",
+            "PIERE  ANNE BEACH": "23722730",
+            "PRINCESS VERA APTS": "26600100",
+            "PYRAMOS HOTEL": "26930222",
+            "QUEENS BAY": "26946600",
+            "RIVER ROCK HOTEL": "23722722",
+            "SEAGULL": "23831270",
+            "SENATOR HTL APTS": "23845400",
+            "SILVER SANDS": "23831590",
+            "SO NICE BEACH": "23723010",
+            "SOFIANNA RESORT & SPA": "26949000",
+            "ST ELIAS RESORT": "23831300",
+            "ST GEROGE BEACH HOTEL": "26845000",
+            "STAMATIA": "23722723",
+            "SUNNY HILLS APTS": "26222004",
+            "SUNRISE BEACH": "23831501",
+            "SUNRISE GARDEN HTL": "23831466",
+            "SUNRISE JADE": "23813700",
+            "SUNRISE OASIS": "23832211",
+            "SUNRISE PEARL": "23831500",
+            "TASIA MARIS BEACH": "23722770",
+            "TASIA MARIS OASIS": "23721026",
+            "TASIA MARIS SANDS": "23725400",
+            "TASIA MARIS SEASONS": "23813400",
+            "THALASSA": "26881500",
+            "THALASSINES VILLAS": "23744866",
+            "THE BLUE IVY": "23832500",
+            "THE DOME BEACH": "23721006",
+            "THEO SUNSET": "26940840",
+            "TOXOTIS HTL APTS": "23814555",
+            "TSOKKOS CHRYSOMARE": "23848500",
+            "TSOKKOS GARDENS": "23833636",
+            "TSOKKOS PARADISE": "23816500",
+            "TSOKKOS PROTARAS": "23831363",
+            "VANGELIS HTL APTS": "23813600",
+            "VASSOS NISSI PLAGE": "23723003",
+            "VENUS BEACH": "26949200",
+            "VRACHIA BEACH": "26940950",
+            "VRISSAKI BEACH": "23831333",
+            "VRISSAKI HOTEL APTS": "23831333",
+            "VRISSIANA BEACH": "23833444",
+        };
 
         let extractedManifests = [];
         let excelDriversMap = {}; 
@@ -351,7 +522,6 @@
                 extractedManifests.sort((a, b) => (a.sortTime || "23:59").localeCompare(b.sortTime || "23:59"));
 
                 document.getElementById('searchInput').disabled = false;
-                document.getElementById('searchInput').placeholder = "Search Name, Ref, or Hotel...";
                 document.getElementById('statusMessage').classList.add('hidden');
                 setActiveTab(activeTransferTab);
             }
@@ -375,7 +545,7 @@
                 return {
                     y: parseFloat(key),
                     text: rowItems.map(it => it.text).join(" "),
-                    tokens: rowItems.map(it => it.text)
+                    rawItems: rowItems
                 };
             });
 
@@ -386,6 +556,7 @@
             let busSupplierName = "easyJet Holidays";
             let vehicleType = "Coaches Transfer";
             let prefixCategory = "COACH"; 
+            let faxHeaderX = -1;
 
             processedLines.forEach(line => {
                 if (line.text.includes("Voucher No.")) {
@@ -403,6 +574,11 @@
                     if (dMatch) driverPhone = dMatch[1].trim();
                 }
                 
+                let faxItem = line.rawItems.find(it => it.text.toUpperCase() === "FAX");
+                if (faxItem) {
+                    faxHeaderX = faxItem.x;
+                }
+
                 if (line.text.includes("Transport")) {
                     const tMatch = line.text.match(/Transport\s+([A-Z0-9]+)/i);
                     if (tMatch) {
@@ -439,7 +615,7 @@
 
             for (let i = 0; i < processedLines.length; i++) {
                 let currentLine = processedLines[i];
-                const refMatch = currentLine.text.match(/\b(\d{7})\b/);
+                let refMatch = currentLine.text.match(/\b(\d{7})\b/);
 
                 if (refMatch) {
                     const refNum = refMatch[1];
@@ -463,40 +639,32 @@
                     let leadName = "PASSENGER RECORD";
                     let calculatedPaxTotal = 1;
 
-                    currentLine.tokens.forEach(token => {
-                        let cleanDigits = token.replace(/\D/g, "");
+                    currentLine.rawItems.forEach(item => {
+                        let cleanDigits = item.text.replace(/\D/g, "");
                         if (cleanDigits.length >= 8 && cleanDigits !== refNum) {
-                            clientPhone = formatClientPhoneNumber(token); 
+                            clientPhone = formatClientPhoneNumber(item.text); 
                         }
                     });
 
-                    let joinedTokensStr = currentLine.tokens.join(" ");
-                    let wordsArray = joinedTokensStr.split(/\s+/);
+                    // SCAN PAX: Matches distinct voucher matrix integer columns
+                    let numericTokensOnRow = [];
+                    currentLine.rawItems.forEach(item => {
+                        let rawStr = item.text.trim();
+                        if (/^\d+$/.test(rawStr)) {
+                            numericTokensOnRow.push(parseInt(rawStr, 10));
+                        }
+                    });
+                    
+                    let foundValidPaxToken = numericTokensOnRow.find(val => val > 0 && val < 25 && val !== parseInt(refNum, 10));
+                    if (foundValidPaxToken) {
+                        calculatedPaxTotal = foundValidPaxToken;
+                    }
 
+                    let wordsArray = currentLine.text.split(/\s+/);
                     for (let k = 0; k < wordsArray.length; k++) {
                         let token = wordsArray[k];
-                        if (/[A-Za-z]/.test(token) && !token.includes("EZY") && !token.includes("EASYJET") && !token.includes("HOLI")) {
+                        if (/[A-Za-z]/.test(token) && !token.includes("EZY") && !token.includes("EASYJET") && !token.includes("HOLI") && !/^[A-Za-z]{1,4}\d+/i.test(token) && token.length > 1) {
                             leadName = token;
-                            
-                            let dynamicPaxList = [];
-                            let checkIdx = k + 1;
-                            
-                            while (checkIdx < wordsArray.length) {
-                                let targetToken = wordsArray[checkIdx];
-                                let numericVal = targetToken.replace(/\D/g, "");
-                                
-                                if (numericVal === refNum || numericVal.length >= 8 || /[A-Za-z]/.test(targetToken)) {
-                                    break;
-                                }
-                                if (numericVal.length > 0 && parseInt(numericVal, 10) < 15) {
-                                    dynamicPaxList.push(parseInt(numericVal, 10));
-                                }
-                                checkIdx++;
-                            }
-
-                            if (dynamicPaxList.length > 0) {
-                                calculatedPaxTotal = dynamicPaxList.reduce((sum, current) => sum + current, 0);
-                            }
                             break;
                         }
                     }
@@ -561,7 +729,7 @@
                 visibleCount++;
 
                 const manifestBlock = document.createElement('div');
-                manifestBlock.className = "bg-white rounded-3xl shadow-md hover:shadow-xl border border-slate-200/80 overflow-hidden w-full h-fit transition-all duration-300";
+                manifestBlock.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden w-full h-fit";
 
                 let stopsHtml = '';
                 manifest.stops.forEach(stop => {
@@ -578,7 +746,6 @@
                         const highlightedName = highlightText(p.leadName, query);
                         const highlightedRef = highlightText(p.refNum, query);
 
-                        // CRITICAL CHANGE: If the client mobile phone field is empty, do not show any communication links
                         let communicationButtonsHtml = "";
                         if (p.clientPhone) {
                             let dialDestination = `tel:${p.clientPhone}`;
@@ -590,26 +757,22 @@
                             const safeJSName = p.leadName.replace(/'/g, "\\'");
 
                             communicationButtonsHtml = `
-                                <a href="${dialDestination}" onclick="handleContactClick(event, '${safeJSName}', '${p.clientPhone}', 'tel')" title="Cellular Dial" class="w-10 h-10 border rounded-xl flex items-center justify-center text-base transition-all shadow-xs bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100">📞</a>
-                                <a href="${whatsappLink}" onclick="handleContactClick(event, '${safeJSName}', '${p.clientPhone}', 'whatsapp')" title="WhatsApp Call" class="w-10 h-10 border rounded-xl flex items-center justify-center text-base transition-all shadow-xs bg-green-50 text-green-600 border-green-200 hover:bg-green-100">💬</a>
+                                <a href="${dialDestination}" onclick="handleContactClick(event, '${safeJSName}', '${p.clientPhone}', 'tel')" title="Cellular Dial" class="w-8 h-8 text-sm border rounded-lg flex items-center justify-center transition-all bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100">📞</a>
+                                <a href="${whatsappLink}" onclick="handleContactClick(event, '${safeJSName}', '${p.clientPhone}', 'whatsapp')" title="WhatsApp Call" class="w-8 h-8 text-sm border rounded-lg flex items-center justify-center transition-all bg-green-50 text-green-600 border-green-200 hover:bg-green-100">💬</a>
                             `;
                         }
 
                         passengersHtml += `
-                            <div class="flex items-center justify-between py-3.5 border-b border-slate-100 last:border-0 gap-4">
-                                <div class="truncate flex-1">
-                                    <div class="text-base font-bold text-slate-900 tracking-wide uppercase">
-                                        ${highlightedName}
-                                    </div>
-                                    <div class="text-xs text-slate-500 font-mono mt-1 font-medium normal-case flex items-center gap-2">
-                                        Ref: <span class="text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded-md font-semibold">${highlightedRef}</span>
-                                        <span class="px-1.5 py-0.5 rounded-md bg-orange-50 text-[#FF8833] font-black">PAX: ${p.paxCount}</span>
-                                    </div>
+                            <div class="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0 gap-2 text-sm">
+                                <div class="flex items-center gap-3 truncate flex-1">
+                                    <span class="font-bold text-slate-900 uppercase min-w-[120px] truncate">${highlightedName}</span>
+                                    <span class="text-xs text-slate-500 font-mono">Ref: <span class="text-slate-700 bg-slate-100 px-1 py-0.5 rounded font-semibold">${highlightedRef}</span></span>
+                                    <span class="text-xs px-1.5 py-0.5 rounded bg-orange-100 text-[#E07722] font-black">PAX: ${p.paxCount}</span>
                                 </div>
-                                <div class="flex gap-1.5 shrink-0">
-                                    <button onclick="handleSystemRedirect('${safeRef}', '${COMMENTS_SYSTEM_STATIC_URL}')" aria-label="Notes" class="w-10 h-10 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">📝</button>
+                                <div class="flex gap-1 shrink-0">
+                                    <button onclick="handleSystemRedirect('${safeRef}', '${COMMENTS_SYSTEM_STATIC_URL}')" aria-label="Notes" class="w-8 h-8 text-sm bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center shadow-xs hover:bg-slate-100">📝</button>
                                     ${communicationButtonsHtml}
-                                    <button onclick="handleSystemRedirect('${safeRef}', '${GPS_SYSTEM_STATIC_URL}')" aria-label="Track" class="w-10 h-10 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center text-base cursor-pointer hover:bg-slate-200 transition-all">🚌</button>
+                                    <button onclick="handleSystemRedirect('${safeRef}', '${GPS_SYSTEM_STATIC_URL}')" aria-label="Track" class="w-8 h-8 text-sm bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center shadow-xs hover:bg-slate-100">🚌</button>
                                 </div>
                             </div>
                         `;
@@ -618,64 +781,80 @@
                     if (!passengersHtml) return;
 
                     const highlightedHotel = highlightText(stop.hotelName, query);
-                    const timingLabel = manifest.type === 'arrival' ? 'Flight Arr' : 'Pick Up';
+                    const timingLabel = manifest.type === 'arrival' ? 'Arr' : 'P/U';
+                    
+                    // DIRECTORY INTERCEPTOR MATCHING LAYER
+                    let receptionCallHtml = "";
+                    const normalizedHotelKey = stop.hotelName.toUpperCase().trim();
+                    
+                    // Match lookup check via substring logic
+                    let matchedKey = Object.keys(HOTEL_DIRECTORY).find(k => normalizedHotelKey.includes(k) || k.includes(normalizedHotelKey));
+                    if (matchedKey) {
+                        const recNum = HOTEL_DIRECTORY[matchedKey];
+                        receptionCallHtml = `
+                            <a href="tel:${recNum}" onclick="handleContactClick(event, 'RECEPTION', '${recNum}', 'tel')" class="inline-flex items-center gap-1 text-xs font-bold text-[#E07722] bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-md hover:bg-orange-100 transition-all">
+                                📞 Reception (${recNum})
+                            </a>
+                        `;
+                    }
 
-                    // CRITICAL CHANGE: Reordered layout structure to place the timing badge prominently in the middle row at text-xl
                     stopsHtml += `
-                        <div class="p-5 bg-white border-b border-slate-100 last:border-0 space-y-4">
-                            <div class="text-center">
-                                <span class="text-lg font-black text-[#E07722] tracking-wide uppercase block leading-tight">
-                                    ${highlightedHotel}
-                                </span>
+                        <div class="p-3 bg-white border-b border-slate-100 last:border-0 space-y-2">
+                            <div class="flex flex-wrap items-center justify-between gap-2 bg-orange-50/50 border-l-4 border-[#FF8833] p-2 rounded-r-xl">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-black text-slate-800 uppercase tracking-wide">${highlightedHotel}</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    ${receptionCallHtml}
+                                    <span class="text-sm font-black bg-white text-slate-900 border border-slate-300 px-2.5 py-0.5 rounded-lg font-mono shadow-xs">
+                                        🕒 ${timingLabel}: ${stop.pickupTime}
+                                    </span>
+                                </div>
                             </div>
-                            
-                            <div class="flex justify-center">
-                                <span class="text-xl font-black bg-slate-100 text-slate-900 border border-slate-300 px-5 py-1.5 rounded-2xl font-mono shadow-xs">
-                                    🕒 ${timingLabel}: ${stop.pickupTime}
-                                </span>
-                            </div>
-                            
-                            <div class="pl-1 space-y-1">
+                            <div class="space-y-0.5 px-1">
                                 ${passengersHtml}
                             </div>
                         </div>
                     `;
                 });
 
+                if (!stopsHtml) return;
+
                 const highlightedSupplier = highlightText(manifest.busSupplier, query);
                 const highlightedFlight = highlightText(manifest.flight, query);
-                const displayVoucher = manifest.voucherId !== "N/A" ? manifest.voucherId : "Unified Run";
+                const displayVoucher = manifest.voucherId !== "N/A" ? manifest.voucherId : "Run";
 
                 let driverDialDestination = manifest.driverPhone ? `tel:${manifest.driverPhone}` : `tel:0035799000000`;
-                let driverPhoneStyle = manifest.driverPhone ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-[#1C2C5B]/10 text-slate-500 border-slate-300 pointer-events-none opacity-60';
-                let driverButtonLabel = manifest.driverPhone ? `📞 CALL DRIVER (${manifest.driverPhone})` : `📞 NO DRIVER ASSIGNED`;
+                let driverPhoneStyle = manifest.driverPhone ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-700' : 'bg-slate-100 text-slate-400 border-slate-200 pointer-events-none opacity-50';
+                let driverButtonLabel = manifest.driverPhone ? `📞 Call Driver (${manifest.driverPhone})` : `📞 No Driver`;
 
-                const safeDriverName = "ASSIGNED SUPPLIER DRIVER";
+                const safeDriverName = "DRIVER";
                 const safeDriverPhone = manifest.driverPhone ? manifest.driverPhone : "0035799000000";
 
                 manifestBlock.innerHTML = `
-                    <div class="bg-gradient-to-r from-[#1C2C5B] to-[#0A163A] text-white p-5 space-y-3">
-                        <div class="flex justify-between items-center text-[10px] font-mono font-semibold tracking-wider text-slate-300 mb-1 normal-case">
-                            <span>Voucher ID: <span class="text-orange-400 font-bold">${displayVoucher}</span></span>
-                            <span class="text-white bg-orange-600 px-2 py-0.5 rounded font-bold text-[9px] tracking-widest uppercase">${manifest.type} VIEW</span>
-                        </div>
-                        <div class="flex justify-between items-end mt-1">
+                    <div class="bg-gradient-to-r from-[#1C2C5B] to-[#0A163A] text-white p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-4">
                             <div>
-                                <h2 class="text-sm font-bold text-slate-100 normal-case leading-tight">${highlightedSupplier}</h2>
-                                <p class="text-xs text-slate-400 font-medium normal-case mt-1">${manifest.vehicle}</p>
+                                <span class="text-slate-400 font-mono">Voucher:</span>
+                                <span class="text-orange-400 font-bold">${displayVoucher}</span>
                             </div>
-                            <div class="text-right shrink-0">
-                                <span class="text-sm font-black tracking-wide text-orange-400 block uppercase">FLIGHT: ${highlightedFlight}</span>
-                                <span class="text-xs text-slate-300 font-mono block mt-1">Time: ${manifest.routeTime}</span>
+                            <div>
+                                <span class="font-bold text-slate-200">${highlightedSupplier}</span>
+                                <span class="text-slate-400 mx-1">|</span>
+                                <span class="text-slate-300 text-[11px]">${manifest.vehicle}</span>
                             </div>
                         </div>
-                        <div class="pt-2">
-                            <a href="${driverDialDestination}" onclick="handleContactClick(event, '${safeDriverName}', '${safeDriverPhone}', 'tel')" class="w-full text-center block text-xs font-black tracking-widest py-2.5 px-4 border rounded-xl transition-all ${driverPhoneStyle}">
+                        <div class="flex items-center gap-3">
+                            <div class="text-right">
+                                <span class="font-black text-orange-400 uppercase">FLIGHT: ${highlightedFlight}</span>
+                                <span class="text-slate-300 font-mono ml-2">[${manifest.routeTime}]</span>
+                            </div>
+                            <a href="${driverDialDestination}" onclick="handleContactClick(event, '${safeDriverName}', '${safeDriverPhone}', 'tel')" class="py-1 px-3 border rounded-lg font-bold text-[11px] transition-all ${driverPhoneStyle}">
                                 ${driverButtonLabel}
                             </a>
                         </div>
                     </div>
-                    <div>
+                    <div class="divide-y divide-slate-100">
                         ${stopsHtml}
                     </div>
                 `;
