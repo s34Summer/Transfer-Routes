@@ -83,7 +83,7 @@
         <div id="manifestsContainer" class="grid grid-cols-1 gap-4 w-full"></div>
     </div>
 
-    <!-- Modal View Setup Container -->
+    <!-- PC Desktop Verification Modal Window Block -->
     <div id="desktopModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4" onclick="closeDesktopModal(event)">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 border border-slate-100 transform scale-100 transition-all" onclick="event.stopPropagation()">
             <div class="w-12 h-12 bg-orange-50 text-[#FF8833] rounded-full flex items-center justify-center mx-auto text-xl font-bold">📲</div>
@@ -192,7 +192,7 @@
             "GOLDEN COAST": "23814000",
             "GRECIAN BAY": "23842000",
             "GRECIAN PARK": "23844000",
-            "GRECIAN SANDS": "23721616",
+            "GRECIAN SAND": "23721616",
             "GREEN BUNGALOWS": "23721511",
             "HELIOS BAY APTS": "26935656",
             "ILIADA BEACH": "23833200",
@@ -387,6 +387,7 @@
             return String(rawString).replace(/\s+/g, "").trim();
         }
 
+        // Action Redirect Utilities
         function handleSystemRedirect(refNum, systemUrlBase) {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(refNum).then(() => {
@@ -623,21 +624,17 @@
             fileReader.readAsArrayBuffer(file);
         }
 
-        // ENFORCED CHRONOLOGICAL SORTING LAUNCH HOOK
         function finalizeParsing() {
             if (extractedManifests.length > 0) {
-                // Step 1: Re-evaluate root timing metrics across each run item
                 extractedManifests.forEach(manifest => {
                     manifest.stops.sort((a, b) => a.pickupTime.localeCompare(b.pickupTime));
                     if (manifest.stops.length > 0) {
-                        // Enforce earliest stop time pattern as standard run key
                         manifest.sortTime = manifest.stops[0].pickupTime;
                     } else {
                         manifest.sortTime = "23:59";
                     }
                 });
 
-                // Step 2: Strictly filter global manifests chronologically by their sortTime strings
                 extractedManifests.sort((a, b) => a.sortTime.localeCompare(b.sortTime));
 
                 document.getElementById('searchInput').disabled = false;
@@ -858,7 +855,7 @@
                 const arrowIconId = `voucher-arrow-${index}`;
 
                 let stopsHtml = '';
-                manifest.stops.forEach(stop => {
+                manifest.stops.forEach((stop, stopIndex) => {
                     let passengersHtml = '';
                     
                     stop.passengers.forEach(p => {
@@ -889,13 +886,13 @@
                         }
 
                         passengersHtml += `
-                            <div class="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0 gap-2 text-sm">
-                                <div class="flex items-center gap-3 truncate flex-1">
-                                    <span class="font-bold text-slate-900 uppercase min-w-[120px] truncate">${highlightedName}</span>
+                            <div class="flex items-center justify-start py-1.5 border-b border-slate-100 last:border-0 gap-6 text-sm">
+                                <div class="flex items-center gap-4 truncate max-w-sm sm:max-w-md md:max-w-xl">
+                                    <span class="font-bold text-slate-900 uppercase min-w-[140px] truncate">${highlightedName}</span>
                                     <span class="text-xs text-slate-500 font-mono">Ref: <span class="text-slate-700 bg-slate-100 px-1 py-0.5 rounded font-semibold">${highlightedRef}</span></span>
-                                    <span class="text-xs px-1.5 py-0.5 rounded bg-orange-100 text-[#E07722] font-black">PAX: ${p.paxCount}</span>
+                                    <span class="text-xs px-1.5 py-0.5 rounded bg-orange-100 text-[#E07722] font-black shrink-0">PAX: ${p.paxCount}</span>
                                 </div>
-                                <div class="flex gap-1 shrink-0">
+                                <div class="flex gap-1 shrink-0 ml-auto sm:ml-0">
                                     <button onclick="handleSystemRedirect('${safeRef}', '${COMMENTS_SYSTEM_STATIC_URL}')" aria-label="Notes" class="w-8 h-8 text-sm bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center shadow-xs hover:bg-slate-100">📝</button>
                                     ${communicationButtonsHtml}
                                     <button onclick="handleSystemRedirect('${safeRef}', '${GPS_SYSTEM_STATIC_URL}')" aria-label="Track" class="w-8 h-8 text-sm bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center shadow-xs hover:bg-slate-100">🚌</button>
@@ -916,17 +913,19 @@
                     if (matchedKey) {
                         const recNum = HOTEL_DIRECTORY[matchedKey];
                         receptionCallHtml = `
-                            <a href="tel:${recNum}" onclick="handleContactClick(event, 'RECEPTION', '${recNum}', 'tel')" class="inline-flex items-center gap-1 text-xs font-bold text-[#E07722] bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-md hover:bg-orange-100 transition-all">
+                            <a href="tel:${recNum}" onclick="handleContactClick(event, 'RECEPTION', '${recNum}', 'tel')" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-100/60 border border-emerald-200 px-2 py-0.5 rounded-md hover:bg-emerald-100 transition-all">
                                 📞 Reception (${recNum})
                             </a>
                         `;
                     }
 
+                    // UPDATED STYLE: Changed background to bg-emerald-50 and border accent to border-emerald-500
                     stopsHtml += `
                         <div class="p-3 bg-white border-b border-slate-100 last:border-0 space-y-2">
-                            <div class="flex flex-wrap items-center justify-between gap-2 bg-orange-50/50 border-l-4 border-[#FF8833] p-2 rounded-r-xl">
+                            <div class="flex flex-wrap items-center justify-between gap-2 bg-emerald-50 border-l-4 border-emerald-500 p-2 rounded-r-xl">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-sm font-black text-slate-800 uppercase tracking-wide">${highlightedHotel}</span>
+                                    <span class="text-xs bg-emerald-600 text-white px-2 py-0.5 rounded-md font-black uppercase tracking-wider shadow-xs">Stop ${stopIndex + 1}</span>
+                                    <span class="text-sm font-black text-slate-800 uppercase tracking-wide ml-1">${highlightedHotel}</span>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     ${receptionCallHtml}
