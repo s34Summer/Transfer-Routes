@@ -108,7 +108,7 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // MASTER HOTELS DICTIONARY - EXTRACTED AND UPDATED
+        // MASTER HOTEL DICTIONARY
         const HOTEL_DIRECTORY = {
             "ADAMS BEACH": "23840000",
             "AKTEA BEACH VILLAGE": "23845000",
@@ -164,8 +164,8 @@
             "CAVO MARIS": "23832043",
             "CAVO ZOE SEASIDE": "23730500",
             "CBH ASIMINA SUITES": "26964333",
-            "CHRISTABELLE HOTEL APTS": "23721860",
-            "CHRISTABELLE HTL APTS": "23721860",
+            "CHRISTABELLA HOTEL APTS": "23721860",
+            "CHRISTABELLA HTL APTS": "23721860",
             "CHRISTOFINIA HOTEL": "23816000",
             "CONSTANTINOS THE GREAT": "23834000",
             "CORAL BEACH HOTEL": "26881000",
@@ -199,7 +199,7 @@
             "IVI MARE HOTEL": "26913555",
             "KAPETANIOS AQUA RESORT": "26964000",
             "KAPETANIOS BAY": "23831170",
-            "KEFALONITIS HOTEL APTS": "26945866",
+            "KEFALONITIS APTS": "26945866",
             "KEFALOS VILLAGE": "26934000",
             "KING EVELTHON HOTEL": "26930100",
             "KISSOS HOTEL": "26936111",
@@ -623,23 +623,6 @@
             fileReader.readAsArrayBuffer(file);
         }
 
-        function finalizeParsing() {
-            if (extractedManifests.length > 0) {
-                extractedManifests.forEach(manifest => {
-                    manifest.stops.sort((a, b) => a.pickupTime.localeCompare(b.pickupTime));
-                    if (manifest.stops.length > 0) {
-                        manifest.sortTime = manifest.stops[0].pickupTime;
-                    }
-                });
-
-                extractedManifests.sort((a, b) => (a.sortTime || "23:59").localeCompare(b.sortTime || "23:59"));
-
-                document.getElementById('searchInput').disabled = false;
-                document.getElementById('statusMessage').classList.add('hidden');
-                setActiveTab(activeTransferTab);
-            }
-        }
-
         function parseTwoRowPairedLayout(items, transferType) {
             let lineMap = {};
             items.forEach(item => {
@@ -838,7 +821,7 @@
 
             let visibleCount = 0;
 
-            extractedManifests.forEach(manifest => {
+            extractedManifests.forEach((manifest, index) => {
                 if (manifest.type !== activeTransferTab) return;
                 if (activePrefixTab !== 'ALL' && manifest.prefixCategory !== activePrefixTab) return;
                 if (lowerQuery && !manifest.searchString.includes(lowerQuery) && !manifest.flight.toLowerCase().includes(lowerQuery) && !manifest.voucherId.toLowerCase().includes(lowerQuery)) return;
@@ -846,7 +829,10 @@
                 visibleCount++;
 
                 const manifestBlock = document.createElement('div');
-                manifestBlock.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden w-full h-fit";
+                manifestBlock.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden w-full h-fit transition-all duration-300";
+                
+                const contentBlockId = `voucher-body-${index}`;
+                const arrowIconId = `voucher-arrow-${index}`;
 
                 let stopsHtml = '';
                 manifest.stops.forEach(stop => {
@@ -947,19 +933,22 @@
                 const safeDriverPhone = manifest.driverPhone ? manifest.driverPhone : "0035799000000";
 
                 manifestBlock.innerHTML = `
-                    <div class="bg-gradient-to-r from-[#1C2C5B] to-[#0A163A] text-white p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-                        <div class="flex items-center gap-4">
-                            <div>
-                                <span class="text-slate-400 font-mono">Voucher:</span>
-                                <span class="text-orange-400 font-bold">${displayVoucher}</span>
-                            </div>
-                            <div>
-                                <span class="font-bold text-slate-200">${highlightedSupplier}</span>
-                                <span class="text-slate-400 mx-1">|</span>
-                                <span class="text-slate-300 text-[11px]">${manifest.vehicle}</span>
+                    <div class="bg-gradient-to-r from-[#1C2C5B] to-[#0A163A] text-white p-3 flex flex-wrap items-center justify-between gap-2 text-xs select-none cursor-pointer" onclick="toggleVoucherCollapse('${contentBlockId}', '${arrowIconId}')">
+                        <div class="flex items-center gap-3">
+                            <span id="${arrowIconId}" class="text-base font-bold text-orange-400 transition-transform duration-200 inline-block">▲</span>
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <span class="text-slate-400 font-mono">Voucher:</span>
+                                    <span class="text-orange-400 font-bold">${displayVoucher}</span>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-slate-200">${highlightedSupplier}</span>
+                                    <span class="text-slate-400 mx-1">|</span>
+                                    <span class="text-slate-300 text-[11px]">${manifest.vehicle}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3" onclick="event.stopPropagation()">
                             <div class="text-right">
                                 <span class="font-black text-orange-400 uppercase">FLIGHT: ${highlightedFlight}</span>
                             </div>
@@ -968,7 +957,7 @@
                             </a>
                         </div>
                     </div>
-                    <div class="divide-y divide-slate-100">
+                    <div id="${contentBlockId}" class="divide-y divide-slate-100 transition-all duration-300 max-h-[5000px] overflow-hidden opacity-100">
                         ${stopsHtml}
                     </div>
                 `;
@@ -978,6 +967,22 @@
 
             if (visibleCount === 0) {
                 container.innerHTML = `<div class="text-center text-slate-400 py-12 bg-white rounded-2xl border border-slate-200 text-sm shadow-2xs">No active transfers match your filtering settings.</div>`;
+            }
+        }
+
+        // GLOBAL INTERACTIVE COLLAPSE MECHANIC ENGINE
+        function toggleVoucherCollapse(bodyId, arrowId) {
+            const bodyNode = document.getElementById(bodyId);
+            const arrowNode = document.getElementById(arrowId);
+            
+            if (bodyNode.classList.contains('max-h-[0px]')) {
+                bodyNode.classList.remove('max-h-[0px]', 'opacity-0', 'pointer-events-none');
+                bodyNode.classList.add('max-h-[5000px]', 'opacity-100');
+                arrowNode.style.transform = 'rotate(0deg)';
+            } else {
+                bodyNode.classList.remove('max-h-[5000px]', 'opacity-100');
+                bodyNode.classList.add('max-h-[0px]', 'opacity-0', 'pointer-events-none');
+                arrowNode.style.transform = 'rotate(-180deg)';
             }
         }
     </script>
