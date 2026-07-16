@@ -108,7 +108,7 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // MASTER HOTEL DICTIONARY
+        // MASTER HOTEL DIRECTORY
         const HOTEL_DIRECTORY = {
             "ADAMS BEACH": "23840000",
             "AKTEA BEACH VILLAGE": "23845000",
@@ -623,6 +623,29 @@
             fileReader.readAsArrayBuffer(file);
         }
 
+        // ENFORCED CHRONOLOGICAL SORTING LAUNCH HOOK
+        function finalizeParsing() {
+            if (extractedManifests.length > 0) {
+                // Step 1: Re-evaluate root timing metrics across each run item
+                extractedManifests.forEach(manifest => {
+                    manifest.stops.sort((a, b) => a.pickupTime.localeCompare(b.pickupTime));
+                    if (manifest.stops.length > 0) {
+                        // Enforce earliest stop time pattern as standard run key
+                        manifest.sortTime = manifest.stops[0].pickupTime;
+                    } else {
+                        manifest.sortTime = "23:59";
+                    }
+                });
+
+                // Step 2: Strictly filter global manifests chronologically by their sortTime strings
+                extractedManifests.sort((a, b) => a.sortTime.localeCompare(b.sortTime));
+
+                document.getElementById('searchInput').disabled = false;
+                document.getElementById('statusMessage').classList.add('hidden');
+                setActiveTab(activeTransferTab);
+            }
+        }
+
         function parseTwoRowPairedLayout(items, transferType) {
             let lineMap = {};
             items.forEach(item => {
@@ -970,7 +993,7 @@
             }
         }
 
-        // GLOBAL INTERACTIVE COLLAPSE MECHANIC ENGINE
+        // GLOBAL COLLAPSE TOGGLE ENGINE
         function toggleVoucherCollapse(bodyId, arrowId) {
             const bodyNode = document.getElementById(bodyId);
             const arrowNode = document.getElementById(arrowId);
