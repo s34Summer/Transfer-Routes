@@ -92,10 +92,15 @@
                 <p id="modalPhoneNumber" class="text-lg font-mono font-bold text-slate-600 tracking-wider mt-1"></p>
                 <p id="modalActionType" class="text-xs uppercase font-black tracking-widest text-[#FF8833] mt-0.5"></p>
             </div>
-            <div id="qrcodeCanvas" class="flex justify-center p-3 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner max-w-[186px] mx-auto"></div>
+            
+            <div class="relative bg-slate-50 rounded-2xl border border-slate-100 shadow-inner overflow-hidden max-w-[186px] mx-auto min-h-[160px] flex items-center justify-center">
+                <div id="qrcodeCanvas" class="absolute inset-0 flex justify-center p-3 bg-slate-50"></div>
+                <video id="cameraPreviewStream" autoplay muted playsinline class="hidden w-full h-full object-cover"></video>
+            </div>
+
             <div class="grid grid-cols-2 gap-2 pt-1">
                 <button onclick="copyModalNumber()" class="bg-slate-100 hover:bg-slate-200 text-[#1C2C5B] font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">📋 Copy Number</button>
-                <button onclick="document.getElementById('desktopModal').classList.add('hidden')" class="bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">✕ Close</button>
+                <button onclick="stopCameraAndCloseModal()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">✕ Close</button>
             </div>
         </div>
     </div>
@@ -103,16 +108,18 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // MASTER HOTEL DIRECTORY
+        // MASTER HOTELS DICTIONARY - EXTRACTED AND UPDATED
         const HOTEL_DIRECTORY = {
             "ADAMS BEACH": "23840000",
             "AKTEA BEACH VILLAGE": "23845000",
             "AKTI BEACH": "26272777",
             "ALECOS HOTEL APTS": "26950225",
-            "ALEXANDER THE GREAT": "25274590",
+            "ALEXANDER THE GREAT": "26824000",
             "ALIATHON AEGEAN": "26964400",
             "ALION BEACH": "23722900",
+            "ALMYRA (THANOS)": "26888700",
             "ALMYRA HOTEL": "26888700",
+            "ALVA HOTEL APARTMENTS": "23831515",
             "ALVA HOTEL APTS": "23831515",
             "AMANTI": "25274590",
             "AMARANDE HOTEL": "23819900",
@@ -142,10 +149,12 @@
             "ATLANTICA SANCTA NAPA": "23721011",
             "ATLANTICA SUNDARDEN BEACH": "23721000",
             "ATLANTICA SUNGARDEN PARK": "23500500",
+            "AVANTI HOLIDAY VILLAGE": "26965555",
             "AVANTI HOTEL": "26965555",
             "AVANTI VILLAGE": "26965555",
             "AVLIDA HOTEL": "26946000",
             "AZIA BEACH": "26845100",
+            "BASILICA HOLIDAY RESORT": "26938487",
             "BASILICA GARDENS": "26938487",
             "BOHEMIAN GARDENS": "23814120",
             "CALI RESORT & SPA": "26956868",
@@ -154,7 +163,9 @@
             "CAPTAIN PEIR": "23831433",
             "CAVO MARIS": "23832043",
             "CAVO ZOE SEASIDE": "23730500",
-            "CHRISTABELLA HTL APTS": "23721860",
+            "CBH ASIMINA SUITES": "26964333",
+            "CHRISTABELLE HOTEL APTS": "23721860",
+            "CHRISTABELLE HTL APTS": "23721860",
             "CHRISTOFINIA HOTEL": "23816000",
             "CONSTANTINOS THE GREAT": "23834000",
             "CORAL BEACH HOTEL": "26881000",
@@ -170,6 +181,7 @@
             "DIONYSOS HOTEL": "26933414",
             "ELENI HOLIDAY VILLAGE": "26934200",
             "ELIGONIA HOTEL APTS": "23819292",
+            "ELYSIUM (STADEMOS)": "26844444",
             "ELYSIUM HOTEL": "26844444",
             "EURONAPA HTL APTS": "23722444",
             "EVABELLE NAPA": "23723100",
@@ -195,13 +207,19 @@
             "KONNOS BAY HOTEL": "23831630",
             "LAURA BEACH": "26944900",
             "LEDRA BEACH": "26964848",
+            "LEONARDO CRYSTAL COVE": "23845900",
+            "LEONARDO PLAZA CYPRIA MARIS": "26964111",
             "LIMANAKI BEACH": "23721600",
             "LIVAS HTL APTS": "23831756",
             "LOUIS ALTHEA BEACH": "23814141",
+            "LOUIS IMPERIAL ISLAND RESORT": "26965415",
+            "LOUIS IVI MARE": "26913555",
             "LOUTISIANA": "23722666",
             "M BOUTIQUE": "26933500",
             "MAKRONISSOS VILLAGE": "23721416",
             "MALAMA VILLAGE": "23822000",
+            "MARE AYIA NAPA": "23721401",
+            "MANDALENA HOTEL APTS": "23832944",
             "MANDALENA APTS": "23832944",
             "MANDALI HOTEL": "23814100",
             "MARGADINA HOTEL": "23815000",
@@ -228,6 +246,7 @@
             "ODESSA BEACH": "23831645",
             "OKEANOS BEACH": "23724440",
             "OLYMPIC LAGOON": "25274590",
+            "PANDREAM HOTEL APTS": "26964888",
             "PANDREAM APTS": "26964888",
             "PAPANTONIA APTS": "23832097",
             "PAPHOS BREEZE": "26950200",
@@ -242,12 +261,14 @@
             "QUEENS BAY": "26946600",
             "RIVER ROCK HOTEL": "23722722",
             "SEAGULL": "23831270",
+            "SENATOR HOTEL APTS": "23845400",
             "SENATOR HTL APTS": "23845400",
             "SILVER SANDS": "23831590",
             "SO NICE BEACH": "23723010",
             "SOFIANNA RESORT & SPA": "26949000",
             "ST ELIAS RESORT": "23831300",
             "ST GEROGE BEACH HOTEL": "26845000",
+            "ST. GEORGE HOTEL & SPA RESORT": "26845000",
             "STAMATIA": "23722723",
             "SUNNY HILLS APTS": "26222004",
             "SUNRISE BEACH": "23831501",
@@ -259,13 +280,17 @@
             "TASIA MARIS OASIS": "23721026",
             "TASIA MARIS SANDS": "23725400",
             "TASIA MARIS SEASONS": "23813400",
+            "TASMARIA HOTEL APTS": "26946800",
             "THALASSA": "26881500",
             "THALASSINES VILLAS": "23744866",
             "THE BLUE IVY": "23832500",
             "THE DOME BEACH": "23721006",
             "THEO SUNSET": "26940840",
+            "TOXOTIS HOTEL": "23814555",
             "TOXOTIS HTL APTS": "23814555",
+            "TSOKKOS ASCOS CORAL BEACH": "26885000",
             "TSOKKOS CHRYSOMARE": "23848500",
+            "TSOKKOS DOME BEACH HOTEL": "23721006",
             "TSOKKOS GARDENS": "23833636",
             "TSOKKOS PARADISE": "23816500",
             "TSOKKOS PROTARAS": "23831363",
@@ -284,9 +309,10 @@
         let activePrefixTab = 'ALL'; 
         let currentModalPhoneRaw = "";
         let headerCollapsed = false;
+        let activeCameraStreamObject = null; 
 
-        const COMMENTS_SYSTEM_STATIC_URL = "https://s34summer.github.io/Easy-Jet-Call-Log/";
-        const GPS_SYSTEM_STATIC_URL = "https://departures.summertimes.com.cy/";
+        const COMMENTS_SYSTEM_STATIC_URL = "https://yourcommentssystem.com/comments";
+        const GPS_SYSTEM_STATIC_URL = "https://yourgpssystem.com/trackingpage";
 
         document.getElementById('searchInput').addEventListener('input', renderManifestCards, false);
         document.getElementById('pdfArrivals').addEventListener('change', (e) => handlePDFUpload(e, 'arrival'), false);
@@ -374,7 +400,7 @@
             }
         }
 
-        function handleContactClick(event, name, phone, mode) {
+        async function handleContactClick(event, name, phone, mode) {
             if (window.matchMedia("(min-width: 1024px)").matches) {
                 event.preventDefault(); 
                 
@@ -383,7 +409,12 @@
                 document.getElementById('modalPhoneNumber').innerText = phone;
                 document.getElementById('modalActionType').innerText = mode === 'tel' ? '📞 CELLULAR DIAL ROUTE' : '💬 WHATSAPP AUDIO CALL';
                 
-                document.getElementById('qrcodeCanvas').innerHTML = "";
+                const qrContainer = document.getElementById('qrcodeCanvas');
+                const videoNode = document.getElementById('cameraPreviewStream');
+                
+                qrContainer.innerHTML = "";
+                qrContainer.classList.remove('hidden');
+                videoNode.classList.add('hidden');
                 
                 let qrPayload = "";
                 if (mode === 'tel') {
@@ -396,7 +427,7 @@
                     qrPayload = `https://wa.me/${cleanWhatsAppNum}`;
                 }
                 
-                new QRCode(document.getElementById("qrcodeCanvas"), {
+                new QRCode(qrContainer, {
                     text: qrPayload,
                     width: 160,
                     height: 160,
@@ -406,11 +437,59 @@
                 });
                 
                 document.getElementById('desktopModal').classList.remove('hidden');
+            } else {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    initiateAsyncMobileCameraWarmup();
+                }
             }
         }
 
-        function closeDesktopModal(event) {
+        async function initiateAsyncMobileCameraWarmup() {
+            const videoNode = document.getElementById('cameraPreviewStream');
+            const qrContainer = document.getElementById('qrcodeCanvas');
+            
+            if (activeCameraStreamObject) {
+                activeCameraStreamObject.getTracks().forEach(track => track.stop());
+            }
+
+            const hardwareConstraints = {
+                video: {
+                    facingMode: "environment",
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                },
+                audio: false
+            };
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(hardwareConstraints);
+                activeCameraStreamObject = stream;
+                
+                videoNode.srcObject = stream;
+                qrContainer.classList.add('hidden');
+                videoNode.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    videoNode.play().catch(err => console.log("Stream play deferred: ", err));
+                }, 150);
+
+            } catch (err) {
+                console.warn("Hardware stream warm-up skipped, falling back to graphics context rendering mode.", err);
+                qrContainer.classList.remove('hidden');
+                videoNode.classList.add('hidden');
+            }
+        }
+
+        function stopCameraAndCloseModal() {
+            if (activeCameraStreamObject) {
+                activeCameraStreamObject.getTracks().forEach(track => track.stop());
+                activeCameraStreamObject = null;
+            }
             document.getElementById('desktopModal').classList.add('hidden');
+        }
+
+        function closeDesktopModal(event) {
+            stopCameraAndCloseModal();
         }
 
         function copyModalNumber() {
@@ -420,7 +499,6 @@
             }
         }
 
-        // UPGRADED HIGH-PERFORMANCE ASYNCHRONOUS EXCEL PARSING ENGINE FOR BUDGET SMARTPHONES
         function handleExcelUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -430,7 +508,6 @@
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const data = new Uint8Array(evt.target.result);
-                // Load core structural schema boundaries non-invasively
                 const workbook = XLSX.read(data, {type: 'array', cellNF: true, cellText: true});
                 
                 excelDriversMap = {}; 
@@ -444,11 +521,10 @@
                         const worksheet = workbook.Sheets[sheetName];
                         const sheetData = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: false});
                         
-                        let currentRowIdx = 1; // Skip row headers
+                        let currentRowIdx = 1; 
                         
                         function processRowBatchInsideSheet() {
                             let batchCount = 0;
-                            // Iterate through a slice batch window of rows
                             while (currentRowIdx < sheetData.length && batchCount < 50) {
                                 const row = sheetData[currentRowIdx];
                                 if (row && row.length >= 2) {
@@ -468,31 +544,23 @@
                                 batchCount++;
                             }
 
-                            // Render status changes
                             document.getElementById('statusMessage').innerHTML = `<span class='text-[#FF8833] font-black animate-pulse'>⏳ DECOMPRESSING DRIVERS SHEET: "${sheetName.toUpperCase()}" [ROW ${currentRowIdx}/${sheetData.length}]...</span>`;
 
                             if (currentRowIdx < sheetData.length) {
-                                // Yield window main-thread execution before next internal sheet loop batch runs
                                 setTimeout(processRowBatchInsideSheet, 1);
                             } else {
                                 currentSheetIdx++;
-                                // Proceed to next spreadsheet workbook sheet tab
                                 setTimeout(processNextExcelSheetChunk, 5);
                             }
                         }
-                        
-                        // Fire first batch for the active sheet tab context
                         processRowBatchInsideSheet();
                     } else {
-                        // Complete map ingestion across all sheets
                         applyExcelDriversToLoadedManifests();
                         document.getElementById('statusMessage').classList.add('hidden');
                         alert(`Driver roster parsed successfully. Linked allocations.`);
                         renderManifestCards();
                     }
                 }
-
-                // Initiate asynchronous workbook scanning
                 processNextExcelSheetChunk();
             };
             reader.readAsArrayBuffer(file);
