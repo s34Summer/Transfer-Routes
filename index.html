@@ -14,10 +14,10 @@
 <body class="bg-[#F8FAFC] font-sans min-h-screen text-slate-900 antialiased pb-12">
 
     <!-- COLLAPSIBLE HEADER -->
-    <div id="orangeHeader" class="sticky top-0 bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white shadow-md px-3 pt-2 pb-1 z-20 rounded-b-3xl border-b-4 border-[#E07722] transition-all duration-300 max-h-[600px] overflow-hidden">
+    <div id="orangeHeader" class="sticky top-0 bg-gradient-to-r from-[#FF8833] to-[#FFAA66] text-white shadow-md px-3 pt-2 pb-1 z-20 rounded-b-3xl border-b-4 border-[#E07722] transition-all duration-300 max-h-[500px] overflow-hidden">
         <div class="max-w-xl lg:max-w-7xl mx-auto space-y-2.5">
             
-            <!-- Collapsible Segment (Now strictly files upload fields) -->
+            <!-- Collapsible Segment -->
             <div id="collapsibleContent" class="space-y-3 transition-all duration-300 opacity-100">
                 <div class="grid grid-cols-2 gap-3 bg-white/15 p-3 rounded-2xl border border-white/20 text-xs lg:max-w-md lg:mx-auto shadow-inner">
                     <div class="flex flex-col gap-1 border-r border-white/25 pr-2">
@@ -41,7 +41,7 @@
                 </div>
             </div>
 
-            <!-- ALWAYS VISIBLE SEARCH BAR (Moved out of collapsible container) -->
+            <!-- ALWAYS VISIBLE SEARCH BAR -->
             <div class="relative lg:max-w-md lg:mx-auto">
                 <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">🔍</span>
                 <input type="text" id="searchInput" disabled placeholder="Search Name, Ref, or Hotel..." class="w-full pl-9 pr-3 py-2 bg-white border border-orange-200/40 rounded-xl shadow-xs focus:outline-none focus:ring-2 focus:ring-[#1C2C5B] text-sm text-slate-900 font-bold placeholder-slate-400 transition-all" />
@@ -83,7 +83,7 @@
         <div id="manifestsContainer" class="grid grid-cols-1 gap-4 w-full"></div>
     </div>
 
-    <!-- PC Desktop Verification Modal Window Block -->
+    <!-- Modal View Setup Container -->
     <div id="desktopModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4" onclick="closeDesktopModal(event)">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 border border-slate-100 transform scale-100 transition-all" onclick="event.stopPropagation()">
             <div class="w-12 h-12 bg-orange-50 text-[#FF8833] rounded-full flex items-center justify-center mx-auto text-xl font-bold">📲</div>
@@ -103,7 +103,7 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // MASTER CYPRUS HOTEL DIRECTORY
+        // MASTER HOTEL DIRECTORY
         const HOTEL_DIRECTORY = {
             "ADAMS BEACH": "23840000",
             "AKTEA BEACH VILLAGE": "23845000",
@@ -420,43 +420,80 @@
             }
         }
 
+        // UPGRADED HIGH-PERFORMANCE ASYNCHRONOUS EXCEL PARSING ENGINE FOR BUDGET SMARTPHONES
         function handleExcelUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
 
+            document.getElementById('statusMessage').innerHTML = `<span class='text-[#FF8833] font-black animate-pulse'>⏳ INITIATING EXCEL ALLOCATIONS ENGINE...</span>`;
+
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const data = new Uint8Array(evt.target.result);
+                // Load core structural schema boundaries non-invasively
                 const workbook = XLSX.read(data, {type: 'array', cellNF: true, cellText: true});
                 
                 excelDriversMap = {}; 
-                let processedRowsCount = 0;
+                let sheetNamesList = workbook.SheetNames;
+                let currentSheetIdx = 0;
+                let totalProcessedRows = 0;
 
-                workbook.SheetNames.forEach(sheetName => {
-                    const worksheet = workbook.Sheets[sheetName];
-                    const sheetData = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: false});
-                    
-                    for (let i = 1; i < sheetData.length; i++) {
-                        const row = sheetData[i];
-                        if (!row || row.length < 2) continue;
+                function processNextExcelSheetChunk() {
+                    if (currentSheetIdx < sheetNamesList.length) {
+                        let sheetName = sheetNamesList[currentSheetIdx];
+                        const worksheet = workbook.Sheets[sheetName];
+                        const sheetData = XLSX.utils.sheet_to_json(worksheet, {header: 1, raw: false});
                         
-                        const voucher = String(row[1] || "").trim();    
-                        const driverName = String(row[4] || "").trim(); 
-                        const driverPhone = String(row[5] || "").trim(); 
+                        let currentRowIdx = 1; // Skip row headers
                         
-                        if (voucher && voucher !== "undefined") {
-                            excelDriversMap[voucher] = {
-                                name: driverName || "Assigned Driver",
-                                phone: formatDriverPhoneNumber(driverPhone)
-                            };
-                            processedRowsCount++;
+                        function processRowBatchInsideSheet() {
+                            let batchCount = 0;
+                            // Iterate through a slice batch window of rows
+                            while (currentRowIdx < sheetData.length && batchCount < 50) {
+                                const row = sheetData[currentRowIdx];
+                                if (row && row.length >= 2) {
+                                    const voucher = String(row[1] || "").trim();    
+                                    const driverName = String(row[4] || "").trim(); 
+                                    const driverPhone = String(row[5] || "").trim(); 
+                                    
+                                    if (voucher && voucher !== "undefined") {
+                                        excelDriversMap[voucher] = {
+                                            name: driverName || "Assigned Driver",
+                                            phone: formatDriverPhoneNumber(driverPhone)
+                                        };
+                                        totalProcessedRows++;
+                                    }
+                                }
+                                currentRowIdx++;
+                                batchCount++;
+                            }
+
+                            // Render status changes
+                            document.getElementById('statusMessage').innerHTML = `<span class='text-[#FF8833] font-black animate-pulse'>⏳ DECOMPRESSING DRIVERS SHEET: "${sheetName.toUpperCase()}" [ROW ${currentRowIdx}/${sheetData.length}]...</span>`;
+
+                            if (currentRowIdx < sheetData.length) {
+                                // Yield window main-thread execution before next internal sheet loop batch runs
+                                setTimeout(processRowBatchInsideSheet, 1);
+                            } else {
+                                currentSheetIdx++;
+                                // Proceed to next spreadsheet workbook sheet tab
+                                setTimeout(processNextExcelSheetChunk, 5);
+                            }
                         }
+                        
+                        // Fire first batch for the active sheet tab context
+                        processRowBatchInsideSheet();
+                    } else {
+                        // Complete map ingestion across all sheets
+                        applyExcelDriversToLoadedManifests();
+                        document.getElementById('statusMessage').classList.add('hidden');
+                        alert(`Driver roster parsed successfully. Linked allocations.`);
+                        renderManifestCards();
                     }
-                });
-                
-                applyExcelDriversToLoadedManifests();
-                alert(`Successfully processed all tabs! Loaded ${processedRowsCount} driver assignments.`);
-                renderManifestCards();
+                }
+
+                // Initiate asynchronous workbook scanning
+                processNextExcelSheetChunk();
             };
             reader.readAsArrayBuffer(file);
         }
@@ -484,24 +521,32 @@
                 const typedarray = new Uint8Array(this.result);
                 try {
                     const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    let totalPages = pdf.numPages;
+                    let processPageIdx = 1;
                     
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const textContent = await page.getTextContent();
-                        
-                        const items = textContent.items.map(item => ({
-                            text: item.str.trim(),
-                            y: item.transform[5],
-                            x: item.transform[4]
-                        })).filter(item => item.text !== "");
+                    function processNextPageChunk() {
+                        if (processPageIdx <= totalPages) {
+                            pdf.getPage(processPageIdx).then(async (page) => {
+                                const textContent = await page.getTextContent();
+                                const items = textContent.items.map(item => ({
+                                    text: item.str.trim(),
+                                    y: item.transform[5],
+                                    x: item.transform[4]
+                                })).filter(item => item.text !== "");
 
-                        if (items.length > 0) {
-                            parseTwoRowPairedLayout(items, transferType);
+                                if (items.length > 0) {
+                                    parseTwoRowPairedLayout(items, transferType);
+                                }
+                                
+                                document.getElementById('statusMessage').innerHTML = `<span class='text-[#FF8833] font-black animate-pulse'>⏳ DECOMPRESSING MANIFEST: PAGE ${processPageIdx} OF ${totalPages}...</span>`;
+                                processPageIdx++;
+                                setTimeout(processNextPageChunk, 5);
+                            });
+                        } else {
+                            finalizeParsing();
                         }
                     }
-
-                    finalizeParsing();
-
+                    processNextPageChunk();
                 } catch (error) {
                     console.error(error);
                     alert("Error parsing PDF data streams.");
@@ -626,12 +671,17 @@
                         let potentialHeader = processedLines[j];
                         let timeMatch = potentialHeader.text.match(/(\d{2}:\d{2})/);
                         
-                        if (timeMatch && !potentialHeader.text.includes("EZY") && !potentialHeader.text.includes("PAX") && !potentialHeader.text.includes("Flight") && !potentialHeader.text.includes("Driver")) {
-                            pickupTime = timeMatch[1];
-                            hotelName = potentialHeader.text.replace(pickupTime, "")
-                                                             .replace(/\b\d{5,6}\b/g, "") 
-                                                             .trim();
-                            break;
+                        if (timeMatch && !potentialHeader.text.includes("EZY") && !potentialHeader.text.includes("Flight")) {
+                            let possibleHotel = potentialHeader.text.replace(timeMatch[1], "").replace(/\b\d{5,6}\b/g, "").trim();
+                            let isDocTitle = /^(ARRIVAL|DEPARTURE)\s+TRANSFER/i.test(possibleHotel) || possibleHotel.toUpperCase() === "ARRIVAL TRANSFER" || possibleHotel.toUpperCase() === "DEPARTURE TRANSFER";
+                            
+                            if (!isDocTitle) {
+                                pickupTime = timeMatch[1];
+                                hotelName = possibleHotel.replace(/ARRIVAL\s+TRANSFER/i, "")
+                                                         .replace(/DEPARTURE\s+TRANSFER/i, "")
+                                                         .trim();
+                                break;
+                            }
                         }
                     }
 
@@ -844,7 +894,6 @@
                         <div class="flex items-center gap-3">
                             <div class="text-right">
                                 <span class="font-black text-orange-400 uppercase">FLIGHT: ${highlightedFlight}</span>
-                                <span class="text-slate-300 font-mono ml-2">[${manifest.routeTime}]</span>
                             </div>
                             <a href="${driverDialDestination}" onclick="handleContactClick(event, '${safeDriverName}', '${safeDriverPhone}', 'tel')" class="py-1 px-3 border rounded-lg font-bold text-[11px] transition-all ${driverPhoneStyle}">
                                 ${driverButtonLabel}
