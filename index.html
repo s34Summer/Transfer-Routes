@@ -108,7 +108,7 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // MASTER HOTEL DIRECTORY (SYNTAX CORRECTED)
+        // MASTER HOTEL DIRECTORY
         const HOTEL_DIRECTORY = {
             "ADAMS BEACH": "23840000",
             "AKTEA BEACH VILLAGE": "23845000",
@@ -294,7 +294,6 @@
             "TSOKKOS CONSTANTINOS THE GREA": "23834000",
             "TSOKKOS DOME BEACH HOTEL": "23721006",
             "TSOKKOS GARDENS": "23833636",
-            "TSOKKOS KING EVELTHON": "26930100",
             "TSOKKOS PARADISE": "23816500",
             "TSOKKOS PROTARAS": "23831363",
             "VANGELIS HTL APTS": "23813600",
@@ -391,19 +390,17 @@
         }
 
         // Action Redirect Utilities
-        if (typeof handleSystemRedirect === 'undefined') {
-            window.handleSystemRedirect = function(refNum, systemUrlBase) {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(refNum).then(() => {
-                        window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
-                    }).catch(err => {
-                        console.error("Clipboard copy failed: ", err);
-                        window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
-                    });
-                } else {
+        function handleSystemRedirect(refNum, systemUrlBase) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(refNum).then(() => {
                     window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
-                }
-            };
+                }).catch(err => {
+                    console.error("Clipboard copy failed: ", err);
+                    window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
+                });
+            } else {
+                window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
+            }
         }
 
         async function handleContactClick(event, name, phone, mode) {
