@@ -108,7 +108,7 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // MASTER HOTEL DIRECTORY
+        // MASTER HOTEL DIRECTORY (SYNTAX CORRECTED)
         const HOTEL_DIRECTORY = {
             "ADAMS BEACH": "23840000",
             "AKTEA BEACH VILLAGE": "23845000",
@@ -291,9 +291,10 @@
             "TOXOTIS HTL APTS": "23814555",
             "TSOKKOS ASCOS CORAL BEACH": "26885000",
             "TSOKKOS CHRYSOMARE": "23848500",
-            "TSOKKOS CONSTANTINOS THE GREA": "23834000"
+            "TSOKKOS CONSTANTINOS THE GREA": "23834000",
             "TSOKKOS DOME BEACH HOTEL": "23721006",
             "TSOKKOS GARDENS": "23833636",
+            "TSOKKOS KING EVELTHON": "26930100"
             "TSOKKOS PARADISE": "23816500",
             "TSOKKOS PROTARAS": "23831363",
             "VANGELIS HTL APTS": "23813600",
@@ -390,17 +391,19 @@
         }
 
         // Action Redirect Utilities
-        function handleSystemRedirect(refNum, systemUrlBase) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(refNum).then(() => {
+        if (typeof handleSystemRedirect === 'undefined') {
+            window.handleSystemRedirect = function(refNum, systemUrlBase) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(refNum).then(() => {
+                        window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
+                    }).catch(err => {
+                        console.error("Clipboard copy failed: ", err);
+                        window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
+                    });
+                } else {
                     window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
-                }).catch(err => {
-                    console.error("Clipboard copy failed: ", err);
-                    window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
-                });
-            } else {
-                window.open(`${systemUrlBase}?ref=${refNum}`, '_blank');
-            }
+                }
+            };
         }
 
         async function handleContactClick(event, name, phone, mode) {
@@ -921,7 +924,6 @@
                         `;
                     }
 
-                    // UPDATED STYLE: Changed background to bg-emerald-50 and border accent to border-emerald-500
                     stopsHtml += `
                         <div class="p-3 bg-white border-b border-slate-100 last:border-0 space-y-2">
                             <div class="flex flex-wrap items-center justify-between gap-2 bg-emerald-50 border-l-4 border-emerald-500 p-2 rounded-r-xl">
