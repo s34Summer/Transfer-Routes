@@ -389,7 +389,6 @@
             return String(rawString).replace(/\s+/g, "").trim();
         }
 
-        // Action Redirect Utilities
         function handleSystemRedirect(refNum, systemUrlBase) {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(refNum).then(() => {
@@ -681,6 +680,18 @@
                     const vMatch = line.text.match(/Voucher No\.\s*(\d+)/) || line.text.match(/No\.\s*(\d+)/);
                     if (vMatch) globalVoucherNo = vMatch[1];
                 }
+                
+                // EXTRACT VEHICLE FIELD FROM VOUCHER HEADER
+                if (line.text.includes("Vehicle")) {
+                    const vehMatch = line.text.match(/Vehicle\s+(.+)/i);
+                    if (vehMatch) {
+                        let extractedVehicle = vehMatch[1].trim();
+                        if (extractedVehicle) {
+                            vehicleType = extractedVehicle;
+                        }
+                    }
+                }
+
                 if (line.text.includes("Flight") || line.text.match(/EZY\d+/i)) {
                     const fMatch = line.text.match(/Flight\s+([A-Z0-9]+)/i) || line.text.match(/(EZY\d+)/i);
                     if (fMatch) flightCode = fMatch[1];
@@ -703,21 +714,21 @@
                         const transportCode = tMatch[1].toUpperCase();
                         if (transportCode.startsWith("ST")) {
                             busSupplierName = "Stavrakis Taxi";
-                            vehicleType = "Taxi Transfer";
+                            if (vehicleType === "Coaches Transfer") vehicleType = "Taxi Transfer";
                             driverPhone = "24102297"; 
                             prefixCategory = "TAXI";
                         } else if (transportCode.startsWith("AP")) {
                             busSupplierName = "Aphrodite Taxi";
-                            vehicleType = "Taxi Transfer";
+                            if (vehicleType === "Coaches Transfer") vehicleType = "Taxi Transfer";
                             driverPhone = "26934555"; 
                             prefixCategory = "TAXI";
                         } else if (transportCode.startsWith("XC")) {
                             busSupplierName = "easyJet Holidays";
-                            vehicleType = "Shuttle Transfer";
+                            if (vehicleType === "Coaches Transfer") vehicleType = "Shuttle Transfer";
                             prefixCategory = "SHUTTLE";
                         } else if (transportCode.startsWith("NC")) {
                             busSupplierName = "easyJet Holidays";
-                            vehicleType = "Adapted Transfer";
+                            if (vehicleType === "Coaches Transfer") vehicleType = "Adapted Transfer";
                             driverPhone = "22487308";
                             prefixCategory = "ADAPTED";
                         }
@@ -967,7 +978,7 @@
                                 <div>
                                     <span class="font-bold text-slate-200">${highlightedSupplier}</span>
                                     <span class="text-slate-400 mx-1">|</span>
-                                    <span class="text-slate-300 text-[11px]">${manifest.vehicle}</span>
+                                    <span class="text-orange-300 font-semibold text-[11px]">${manifest.vehicle}</span>
                                 </div>
                             </div>
                         </div>
